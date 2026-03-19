@@ -2,15 +2,13 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { auth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { UploadButton } from "@uploadthing/react"
-import { OurFileRouter } from "@/lib/uploadthing"
-import { AlertCircle, CheckCircle, Upload } from "lucide-react"
+import { SimpleUpload } from "@/components/simple-upload"
+import { BookOpen, Image } from "lucide-react"
 
 export default function UploadBook() {
   const router = useRouter()
@@ -19,12 +17,20 @@ export default function UploadBook() {
   const [description, setDescription] = useState("")
   const [fileUrl, setFileUrl] = useState("")
   const [coverUrl, setCoverUrl] = useState("")
-  const [fileType, setFileType] = useState("")
   const [fileSize, setFileSize] = useState(0)
   const [isPublic, setIsPublic] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+
+  const handleFileUpload = (url: string, type: string, size: number) => {
+    if (type === "book") {
+      setFileUrl(url)
+      setFileSize(size)
+    } else {
+      setCoverUrl(url)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,19 +38,13 @@ export default function UploadBook() {
     setError("")
     setSuccess("")
 
-    if (!fileUrl) {
-      setError("Please upload a book file")
+    if (!title || !fileUrl) {
+      setError("Title and book file are required")
       setIsUploading(false)
       return
     }
 
     try {
-      const session = await auth()
-      if (!session?.user?.id) {
-        setError("You must be logged in to upload books")
-        return
-      }
-
       const response = await fetch("/api/books", {
         method: "POST",
         headers: {
@@ -56,10 +56,9 @@ export default function UploadBook() {
           description,
           fileUrl,
           coverUrl,
-          fileType,
-          fileSize,
           isPublic,
-          userId: session.user.id,
+          fileType: "pdf", // Default to PDF for demo
+          fileSize,
         }),
       })
 
@@ -67,7 +66,7 @@ export default function UploadBook() {
         setSuccess("Book uploaded successfully!")
         setTimeout(() => {
           router.push("/dashboard")
-        }, 2000)
+        }, 1500)
       } else {
         const data = await response.json()
         setError(data.error || "Failed to upload book")
@@ -80,14 +79,11 @@ export default function UploadBook() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Upload className="h-5 w-5" />
-              Upload New Book
-            </CardTitle>
+            <CardTitle>Upload New Book</CardTitle>
             <CardDescription>
               Add a new book to your personal library
             </CardDescription>
@@ -95,95 +91,67 @@ export default function UploadBook() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
-                <div className="flex items-center gap-2 text-red-600 bg-red-50 p-3 rounded">
-                  <AlertCircle className="h-4 w-4" />
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
                   {error}
                 </div>
               )}
               
               {success && (
-                <div className="flex items-center gap-2 text-green-600 bg-green-50 p-3 rounded">
-                  <CheckCircle className="h-4 w-4" />
+                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
                   {success}
                 </div>
               )}
 
               <div className="space-y-4">
-                <div className="space-y-2">
+                <div>
                   <Label htmlFor="title">Title *</Label>
                   <Input
                     id="title"
+                    type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Enter book title"
                     required
                   />
                 </div>
 
-                <div className="space-y-2">
+                <div>
                   <Label htmlFor="author">Author</Label>
                   <Input
                     id="author"
+                    type="text"
                     value={author}
                     onChange={(e) => setAuthor(e.target.value)}
+                    placeholder="Enter author name"
                   />
                 </div>
 
-                <div className="space-y-2">
+                <div>
                   <Label htmlFor="description">Description</Label>
                   <Textarea
                     id="description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    rows={3}
+                    placeholder="Enter a brief description"
+                    rows={4}
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Book File *</Label>
-                  <UploadButton<OurFileRouter, "bookUploader">
-                    endpoint="bookUploader"
-                    onUploadBegin={() => {
-                      setIsUploading(true)
-                      setError("")
-                    }}
-                    onUploadError={(error) => {
-                      setError(error.message)
-                      setIsUploading(false)
-                    }}
-                    onClientUploadComplete={(res) => {
-                      if (res && res[0]) {
-                        setFileUrl(res[0].url)
-                        setFileType(res[0].name.endsWith('.pdf') ? 'pdf' : 'epub')
-                        setFileSize(res[0].size)
-                        setIsUploading(false)
-                      }
-                    }}
-                  />
-                  {fileUrl && (
-                    <div className="text-sm text-green-600">
-                      ✓ File uploaded successfully
-                    </div>
-                  )}
-                </div>
+                <SimpleUpload
+                  onUpload={handleFileUpload}
+                  accept=".pdf,.epub"
+                  label="Book File *"
+                  maxSize="32MB"
+                  icon={<BookOpen className="h-8 w-8 text-gray-400" />}
+                />
 
-                <div className="space-y-2">
-                  <Label>Cover Image (Optional)</Label>
-                  <UploadButton<OurFileRouter, "coverUploader">
-                    endpoint="coverUploader"
-                    onUploadBegin={() => setError("")}
-                    onUploadError={(error) => setError(error.message)}
-                    onClientUploadComplete={(res) => {
-                      if (res && res[0]) {
-                        setCoverUrl(res[0].url)
-                      }
-                    }}
-                  />
-                  {coverUrl && (
-                    <div className="text-sm text-green-600">
-                      ✓ Cover uploaded successfully
-                    </div>
-                  )}
-                </div>
+                <SimpleUpload
+                  onUpload={handleFileUpload}
+                  accept="image/*"
+                  label="Cover Image (Optional)"
+                  maxSize="4MB"
+                  icon={<Image className="h-8 w-8 text-gray-400" />}
+                />
 
                 <div className="flex items-center space-x-2">
                   <input
@@ -191,15 +159,19 @@ export default function UploadBook() {
                     id="isPublic"
                     checked={isPublic}
                     onChange={(e) => setIsPublic(e.target.checked)}
-                    className="rounded"
+                    className="rounded border-gray-300"
                   />
-                  <Label htmlFor="isPublic">Make this book public</Label>
+                  <Label htmlFor="isPublic" className="text-sm font-medium text-gray-700">
+                    Make this book public
+                  </Label>
                 </div>
               </div>
 
-              <Button type="submit" disabled={isUploading || !fileUrl} className="w-full">
-                {isUploading ? "Uploading..." : "Upload Book"}
-              </Button>
+              <div className="flex justify-end">
+                <Button type="submit" disabled={isUploading}>
+                  {isUploading ? "Uploading..." : "Upload Book"}
+                </Button>
+              </div>
             </form>
           </CardContent>
         </Card>
