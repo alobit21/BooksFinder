@@ -9,12 +9,14 @@ import { LoadingGrid } from "@/components/loading-skeleton";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
 import { LoadMore } from "@/components/load-more";
+import { SparksCarousel } from "@/components/ui/sparks-carousel";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Filter } from "lucide-react";
 
 interface Book {
-  key: string;
+  id?: string;
+  key?: string;
   title: string;
   author_name?: string[];
   first_publish_year?: number;
@@ -36,7 +38,21 @@ export default function Home() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [showOnlyReadable, setShowOnlyReadable] = useState(false);
+  const [showOnlyReadable, setShowOnlyReadable] = useState(false)
+  const [featuredBooks, setFeaturedBooks] = useState<Book[]>([])
+
+  // Fetch featured books on component mount
+  useEffect(() => {
+    const fetchFeaturedBooks = async () => {
+      try {
+        const featured = await searchBooks("popular", 1, 8)
+        setFeaturedBooks(featured.docs.slice(0, 8))
+      } catch (error) {
+        console.error("Failed to fetch featured books:", error)
+      }
+    }
+    fetchFeaturedBooks()
+  }, []);
 
   const debouncedSearch = useCallback(
     async (searchQuery: string, pageNum: number = 1, isLoadMore: boolean = false) => {
@@ -50,24 +66,26 @@ export default function Home() {
           setLoadingMore(true);
         }
         
-        // Search through uploaded books API
-        const response = await fetch(`/api/books/search?q=${encodeURIComponent(searchQuery)}`);
-        const allBooks = await response.json();
-        let filteredBooks = showOnlyReadable 
-          ? allBooks.filter((book: Book) => book.ia && book.ia.length > 0 && book.public_scan_b === true)
-          : allBooks;
+        // Search OpenLibrary API
+        const searchResults = await searchBooks(searchQuery, pageNum, 20);
+        let filteredBooks = searchResults.docs || [];
+        
+        // Apply readability filter if enabled
+        if (showOnlyReadable) {
+          filteredBooks = filteredBooks.filter((book: Book) => 
+            book.ia && book.ia.length > 0 && book.public_scan_b === true
+          );
+        }
         
         // Sort to put IA books first (prioritize books with Internet Archive IDs)
         filteredBooks = filteredBooks.sort((a: Book, b: Book) => {
-          // Books with IA come first
           const aHasIA = a.ia && a.ia.length > 0 && a.public_scan_b === true ? 1 : 0;
           const bHasIA = b.ia && b.ia.length > 0 && b.public_scan_b === true ? 1 : 0;
           
           if (aHasIA !== bHasIA) {
-            return bHasIA - aHasIA; // bHasIA first if different
+            return bHasIA - aHasIA;
           }
           
-          // If both have IA or both don't have IA, maintain original order
           return 0;
         });
         
@@ -78,7 +96,7 @@ export default function Home() {
         }
         
         setHasSearched(true);
-        setHasMore(filteredBooks.length === 20);
+        setHasMore(searchResults.docs && searchResults.docs.length === 20);
         setPage(pageNum);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
@@ -120,6 +138,7 @@ export default function Home() {
           loading={loading}
         />
         
+        {/* Search Results Section */}
         <section className="mb-12">
           {loading && !books.length && <LoadingGrid />}
           
@@ -176,7 +195,7 @@ export default function Home() {
               
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
                 {books.map((book) => (
-                  <BookCard key={book.key} book={book} />
+                  <BookCard key={book.id || book.key} book={book} />
                 ))}
               </div>
               
@@ -188,6 +207,25 @@ export default function Home() {
             </>
           )}
         </section>
+
+        {/* Featured Books Carousel */}
+        {featuredBooks.length > 0 && !hasSearched && (
+          <section className="mb-12">
+            <SparksCarousel
+              title="Featured Books"
+              subtitle="Discover popular books from our collection"
+              items={featuredBooks.map((book) => ({
+                id: book.id || book.key || Math.random().toString(),
+                imageSrc: book.cover_i 
+                  ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
+                  : `https://picsum.photos/seed/${book.key || book.id || Math.random().toString()}/280/160.jpg`,
+                title: book.title,
+                count: book.edition_count || 0,
+                countLabel: "EDITIONS"
+              }))}
+            />
+          </section>
+        )}
       </main>
     </div>
   );

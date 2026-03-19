@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge"
 
 interface BookCardProps {
   book: {
-    key: string
+    id?: string;
+    key?: string;
     title: string
     author_name?: string[]
     first_publish_year?: number
@@ -18,7 +19,7 @@ interface BookCardProps {
 }
 
 export function BookCard({ book }: BookCardProps) {
-  const workId = book.key.replace('/works/', '')
+  const workId = (book.key || book.id || '').replace('/works/', '')
   const coverUrl = book.cover_i 
     ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
     : null
