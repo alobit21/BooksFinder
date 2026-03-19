@@ -144,10 +144,10 @@ export function Navigation() {
             ) : (
               <div className="flex items-center space-x-4">
                 <Link href="/auth/signin">
-                  <Button variant="ghost">Sign In</Button>
+                  <Button variant="ghost" className="text-foreground hover:bg-muted">Sign In</Button>
                 </Link>
                 <Link href="/auth/signup">
-                  <Button>Sign Up</Button>
+                  <Button className="text-primary-foreground">Sign Up</Button>
                 </Link>
               </div>
             )}
