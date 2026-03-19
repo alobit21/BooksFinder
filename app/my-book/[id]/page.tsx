@@ -18,14 +18,15 @@ async function getBook(bookId: string, userId: string) {
   return book
 }
 
-export default async function BookPage({ params }: { params: { id: string } }) {
+export default async function BookPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
   
   if (!session?.user?.id) {
     redirect("/auth/signin")
   }
 
-  const book = await getBook(params.id, session.user.id)
+  const { id } = await params
+  const book = await getBook(id, session.user.id)
 
   if (!book) {
     redirect("/dashboard")

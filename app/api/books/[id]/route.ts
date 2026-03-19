@@ -1,10 +1,18 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
+import { v2 as cloudinary } from 'cloudinary'
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+})
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth()
@@ -15,9 +23,17 @@ export async function GET(
       )
     }
 
+    const { id } = await params
+    if (!id) {
+      return NextResponse.json(
+        { error: "Book ID is required" },
+        { status: 400 }
+      )
+    }
+
     const book = await prisma.book.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id,
       },
     })
@@ -30,10 +46,10 @@ export async function GET(
     }
 
     return NextResponse.json(book)
-  } catch (error) {
+  } catch (error: any) {
     console.error("Book fetch error:", error)
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: error.message || "Internal server error" },
       { status: 500 }
     )
   }
@@ -41,7 +57,7 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth()
@@ -52,11 +68,19 @@ export async function PUT(
       )
     }
 
+    const { id } = await params
+    if (!id) {
+      return NextResponse.json(
+        { error: "Book ID is required" },
+        { status: 400 }
+      )
+    }
+
     const { title, author, description, coverUrl, isPublic } = await request.json()
 
     const book = await prisma.book.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id,
       },
     })
@@ -69,7 +93,7 @@ export async function PUT(
     }
 
     const updatedBook = await prisma.book.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title,
         author,
@@ -80,10 +104,10 @@ export async function PUT(
     })
 
     return NextResponse.json(updatedBook)
-  } catch (error) {
+  } catch (error: any) {
     console.error("Book update error:", error)
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: error.message || "Internal server error" },
       { status: 500 }
     )
   }
@@ -91,7 +115,7 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth()
@@ -102,9 +126,17 @@ export async function DELETE(
       )
     }
 
+    const { id } = await params
+    if (!id) {
+      return NextResponse.json(
+        { error: "Book ID is required" },
+        { status: 400 }
+      )
+    }
+
     const book = await prisma.book.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id,
       },
     })
@@ -116,15 +148,38 @@ export async function DELETE(
       )
     }
 
+    // Delete associated Cloudinary assets
+    if (book.coverUrl) {
+      try {
+        const publicId = book.coverUrl.split('/').pop()?.split('.')[0]
+        if (publicId) {
+          await cloudinary.uploader.destroy(`covers/${publicId}`)
+        }
+      } catch (error) {
+        console.log("Failed to delete cover image:", error)
+      }
+    }
+
+    if (book.fileUrl) {
+      try {
+        const publicId = book.fileUrl.split('/').pop()?.split('.')[0]
+        if (publicId) {
+          await cloudinary.uploader.destroy(`books/${publicId}`)
+        }
+      } catch (error) {
+        console.log("Failed to delete book file:", error)
+      }
+    }
+
     await prisma.book.delete({
-      where: { id: params.id },
+      where: { id },
     })
 
     return NextResponse.json({ message: "Book deleted successfully" })
-  } catch (error) {
+  } catch (error: any) {
     console.error("Book deletion error:", error)
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: error.message || "Internal server error" },
       { status: 500 }
     )
   }

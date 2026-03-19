@@ -1,25 +1,9 @@
-import { PrismaClient } from "@/lib/generated/prisma/client";
-import { PrismaNeon } from "@prisma/adapter-neon";
+import { PrismaClient } from "@prisma/client";
 
-// Validate DATABASE_URL
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL is not set in environment variables");
-}
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
 
-// Create Neon adapter with connection string
-const adapter = new PrismaNeon({
-  connectionString: process.env.DATABASE_URL,
-});
+export const prisma = globalForPrisma.prisma ?? new PrismaClient();
 
-// Prevent multiple instances during development (HMR)
-declare global {
-  // eslint-disable-next-line no-var
-  var prisma: PrismaClient | undefined;
-}
-
-export const prisma =
-  global.prisma ?? new PrismaClient({ adapter });
-
-if (process.env.NODE_ENV !== "production") {
-  global.prisma = prisma;
-}
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;

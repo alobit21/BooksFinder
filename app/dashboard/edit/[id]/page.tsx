@@ -8,8 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { UploadButton } from "@uploadthing/react"
-import { OurFileRouter } from "@/lib/uploadthing"
+import { SimpleUpload } from "@/components/simple-upload"
 import { AlertCircle, CheckCircle, Edit, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
@@ -25,7 +24,7 @@ interface Book {
   isPublic: boolean
 }
 
-export default function EditBook({ params }: { params: { id: string } }) {
+export default function EditBook({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
   const [book, setBook] = useState<Book | null>(null)
   const [title, setTitle] = useState("")
@@ -37,14 +36,20 @@ export default function EditBook({ params }: { params: { id: string } }) {
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+  const [bookId, setBookId] = useState<string>("")
 
   useEffect(() => {
-    fetchBook()
-  }, [params.id])
+    const getParams = async () => {
+      const { id } = await params
+      setBookId(id)
+      fetchBook(id)
+    }
+    getParams()
+  }, [params])
 
-  const fetchBook = async () => {
+  const fetchBook = async (id: string) => {
     try {
-      const response = await fetch(`/api/books/${params.id}`)
+      const response = await fetch(`/api/books/${id}`)
       if (response.ok) {
         const bookData = await response.json()
         setBook(bookData)
@@ -70,7 +75,7 @@ export default function EditBook({ params }: { params: { id: string } }) {
     setSuccess("")
 
     try {
-      const response = await fetch(`/api/books/${params.id}`, {
+      const response = await fetch(`/api/books/${bookId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -194,15 +199,12 @@ export default function EditBook({ params }: { params: { id: string } }) {
 
                 <div className="space-y-2">
                   <Label>Update Cover Image (Optional)</Label>
-                  <UploadButton<OurFileRouter, "coverUploader">
-                    endpoint="coverUploader"
-                    onUploadBegin={() => setError("")}
-                    onUploadError={(error) => setError(error.message)}
-                    onClientUploadComplete={(res) => {
-                      if (res && res[0]) {
-                        setCoverUrl(res[0].url)
-                      }
-                    }}
+                  <SimpleUpload
+                    onUpload={(url) => setCoverUrl(url)}
+                    accept="image/*"
+                    label="Cover Image"
+                    maxSize="4MB"
+                    icon={<Edit className="h-8 w-8 text-gray-400" />}
                   />
                   {coverUrl && (
                     <div className="text-sm text-green-600">
