@@ -2,21 +2,29 @@ import * as React from "react";
 import { motion, useAnimation } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
+import Link from "next/link";
 
-// Define the type for a single item in the carousel
-export interface SparkItem {
-  id: string | number;
-  imageSrc: string;
+// Define book type for carousel items
+export interface BookItem {
+  id?: string;
+  key?: string;
   title: string;
-  count: number;
-  countLabel: string;
+  author_name?: string[];
+  first_publish_year?: number;
+  cover_i?: number;
+  edition_count?: number;
+  ia?: string[];
+  public_scan_b?: boolean;
+  isbn?: string[];
 }
 
-// Define the props for the main component
+// Define props for main component
 export interface SparksCarouselProps {
   title: string;
   subtitle: string;
-  items: SparkItem[];
+  items: BookItem[];
 }
 
 export const SparksCarousel = React.forwardRef<
@@ -28,11 +36,11 @@ export const SparksCarousel = React.forwardRef<
   const [isAtStart, setIsAtStart] = React.useState(true);
   const [isAtEnd, setIsAtEnd] = React.useState(false);
 
-  // Function to scroll the carousel
+  // Function to scroll carousel
   const scroll = (direction: "left" | "right") => {
     if (carouselRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
-      const scrollAmount = clientWidth * 0.8; // Scroll by 80% of the visible width
+      const scrollAmount = clientWidth * 0.8; // Scroll by 80% of visible width
       const newScrollLeft =
         direction === "left"
           ? scrollLeft - scrollAmount
@@ -41,7 +49,7 @@ export const SparksCarousel = React.forwardRef<
       carouselRef.current.scrollTo({ left: newScrollLeft, behavior: "smooth" });
     }
   };
-  
+
   // Effect to check scroll position and update button states
   React.useEffect(() => {
     const checkScrollPosition = () => {
@@ -54,11 +62,11 @@ export const SparksCarousel = React.forwardRef<
 
     const currentRef = carouselRef.current;
     if (currentRef) {
-        // Initial check
-        checkScrollPosition();
-        currentRef.addEventListener("scroll", checkScrollPosition);
+      // Initial check
+      checkScrollPosition();
+      currentRef.addEventListener("scroll", checkScrollPosition);
     }
-    
+
     // Check again on window resize
     window.addEventListener("resize", checkScrollPosition);
 
@@ -76,12 +84,9 @@ export const SparksCarousel = React.forwardRef<
         {/* Header Section */}
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <a href="#" className="group inline-flex items-center">
-              <h2 id="sparks-title" className="text-2xl md:text-3xl font-bold tracking-tight text-card-foreground">
-                {title}
-              </h2>
-              <ChevronRight className="ml-2 h-6 w-6 transition-transform group-hover:translate-x-1" />
-            </a>
+            <h2 id="sparks-title" className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+              {title}
+            </h2>
             <p className="mt-1 text-muted-foreground">{subtitle}</p>
           </div>
         </div>
@@ -92,36 +97,81 @@ export const SparksCarousel = React.forwardRef<
             ref={carouselRef}
             className="flex w-full space-x-4 overflow-x-auto pb-4 scrollbar-hide"
           >
-            {items.map((item, index) => (
-              <motion.div
-                key={item.id}
-                className="group w-[280px] flex-shrink-0"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <div className="overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm transition-shadow hover:shadow-md">
-                  <img
-                    alt={item.title}
-                    className="aspect-video w-full object-cover transition-transform group-hover:scale-105"
-                    height="160"
-                    src={item.imageSrc}
-                    width="280"
-                  />
-                  <div className="p-4">
-                    <h3 className="text-md font-semibold leading-tight text-card-foreground">
-                      {item.title}
-                    </h3>
-                    <div className="mt-4">
-                      <p className="text-xl font-bold">{item.count}</p>
-                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        {item.countLabel}
-                      </p>
+            {items.map((book, index) => {
+              const workId = (book.key || book.id || '').replace('/works/', '')
+              const coverUrl = book.cover_i 
+                ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
+                : null
+              
+              const isReadable = book.ia && book.ia.length > 0 && book.public_scan_b === true
+              const iaId = isReadable ? book.ia![0] : null
+              const isbn = book.isbn && book.isbn.length > 0 ? book.isbn[0] : null
+              
+              // Build URL with both IA ID and ISBN for maximum compatibility
+              const params = new URLSearchParams()
+              if (iaId) params.set('ia', iaId)
+              if (isbn) params.set('isbn', isbn)
+              
+              const bookUrl = `/book/${workId}${params.toString() ? `?${params.toString()}` : ''}`
+
+              return (
+                <motion.div
+                  key={book.id || book.key || index}
+                  className="group w-[280px] flex-shrink-0"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <Link href={bookUrl}>
+                    <div className="overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer">
+                      <div className="aspect-[3/4] relative overflow-hidden rounded-lg bg-muted">
+                        {coverUrl ? (
+                          <Image
+                            src={coverUrl}
+                            alt={book.title}
+                            fill
+                            className="object-cover transition-transform duration-300 group-hover:scale-110"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          />
+                        ) : (
+                          <div className="flex items-center justify-center h-full">
+                            <span className="text-muted-foreground text-sm">No Cover</span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="p-4 space-y-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="font-semibold line-clamp-2 text-sm leading-tight flex-1 text-foreground">
+                            {book.title}
+                          </h3>
+                          {isReadable && (
+                            <Badge variant="default" className="text-xs shrink-0 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white">
+                              Full Text
+                            </Badge>
+                          )}
+                        </div>
+                        
+                        {book.author_name && (
+                          <p className="text-xs text-muted-foreground line-clamp-1">
+                            {book.author_name.join(", ")}
+                          </p>
+                        )}
+                        
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          {book.first_publish_year && (
+                            <span>{book.first_publish_year}</span>
+                          )}
+                          {book.edition_count && book.edition_count > 1 && (
+                            <span>{book.edition_count} editions</span>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+                  </Link>
+                </motion.div>
+              );
+            })}
           </div>
 
           {/* Navigation Buttons */}

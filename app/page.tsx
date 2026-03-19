@@ -235,23 +235,11 @@ export default function Home() {
 
         {/* Featured Books Carousel */}
         {featuredBooks.length > 0 && !hasSearched && (
-          <section className="mb-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto">
-              <div className="mb-8">
-                <h2 className="text-2xl font-semibold text-foreground mb-2">
-                  Featured Books
-                </h2>
-                <p className="text-muted-foreground">
-                  Discover popular books from our collection
-                </p>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
-                {featuredBooks.map((book) => (
-                  <BookCard key={book.id || book.key} book={book} />
-                ))}
-              </div>
-            </div>
-          </section>
+          <SparksCarousel
+            title="Featured Books"
+            subtitle="Discover popular books from our collection"
+            items={featuredBooks}
+          />
         )}
       </main>
     </div>

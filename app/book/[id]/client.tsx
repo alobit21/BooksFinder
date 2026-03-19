@@ -116,7 +116,7 @@ export function BookDetailsClient({ book, iaId, isbn }: BookDetailsClientProps) 
               <Card className="mt-4">
                 <CardContent className="p-6">
                   <div className="space-y-3">
-                    <h3 className="font-semibold">Available Actions</h3>
+                    <h3 className="font-semibold text-foreground">Available Actions</h3>
                     
                     <Button className="w-full" asChild>
                       <Link href={`https://archive.org/details/${iaId}`} target="_blank" rel="noopener noreferrer">
@@ -152,7 +152,7 @@ export function BookDetailsClient({ book, iaId, isbn }: BookDetailsClientProps) 
           <div className="lg:col-span-2 space-y-6">
             {/* Title and Basic Info */}
             <div>
-              <h1 className="text-3xl font-bold mb-2">{book.title}</h1>
+              <h1 className="text-3xl font-bold mb-2 text-foreground">{book.title}</h1>
               {book.first_publish_date && (
                 <p className="text-muted-foreground">
                   First published: {book.first_publish_date}
@@ -163,7 +163,7 @@ export function BookDetailsClient({ book, iaId, isbn }: BookDetailsClientProps) 
             {/* Authors */}
             {book.authors && book.authors.length > 0 && (
               <div>
-                <h2 className="text-xl font-semibold mb-3 flex items-center">
+                <h2 className="text-xl font-semibold mb-3 flex items-center text-foreground">
                   <User className="mr-2 h-5 w-5" />
                   Authors
                 </h2>
@@ -192,7 +192,7 @@ export function BookDetailsClient({ book, iaId, isbn }: BookDetailsClientProps) 
             {/* Subjects */}
             {book.subjects && book.subjects.length > 0 && (
               <div>
-                <h2 className="text-xl font-semibold mb-3 flex items-center">
+                <h2 className="text-xl font-semibold mb-3 flex items-center text-foreground">
                   <Tag className="mr-2 h-5 w-5" />
                   Subjects
                 </h2>
@@ -215,10 +215,10 @@ export function BookDetailsClient({ book, iaId, isbn }: BookDetailsClientProps) 
 
             {/* Description */}
             <div>
-              <h2 className="text-xl font-semibold mb-3">Description</h2>
+              <h2 className="text-xl font-semibold mb-3 text-foreground">Description</h2>
               <Card>
                 <CardContent className="p-6">
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
                     {description}
                   </p>
                 </CardContent>
@@ -227,7 +227,7 @@ export function BookDetailsClient({ book, iaId, isbn }: BookDetailsClientProps) 
 
             {/* Embedded Reader */}
             <div>
-              <h2 className="text-xl font-semibold mb-3">Read Book</h2>
+              <h2 className="text-xl font-semibold mb-3 text-foreground">Read Book</h2>
               
               {/* Internet Archive Reader - Always Show if Available */}
               {iaId && (
@@ -235,7 +235,7 @@ export function BookDetailsClient({ book, iaId, isbn }: BookDetailsClientProps) 
                   <Card>
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-medium">Internet Archive Reader</h3>
+                        <h3 className="font-medium text-foreground">Internet Archive Reader</h3>
                         <Badge variant="outline" className="text-green-600">Full Text</Badge>
                       </div>
                       <iframe
@@ -270,7 +270,7 @@ export function BookDetailsClient({ book, iaId, isbn }: BookDetailsClientProps) 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Card>
                 <CardContent className="p-4">
-                  <h3 className="font-semibold mb-2">Book Details</h3>
+                  <h3 className="font-semibold mb-2 text-foreground">Book Details</h3>
                   <div className="space-y-1 text-sm text-muted-foreground">
                     <p>Key: {book.key}</p>
                     {book.id && <p>ID: {book.id}</p>}
@@ -281,7 +281,7 @@ export function BookDetailsClient({ book, iaId, isbn }: BookDetailsClientProps) 
               
               <Card>
                 <CardContent className="p-4">
-                  <h3 className="font-semibold mb-2">Revision Info</h3>
+                  <h3 className="font-semibold mb-2 text-foreground">Revision Info</h3>
                   <div className="space-y-1 text-sm text-muted-foreground">
                     {book.revision && <p>Revision: {book.revision}</p>}
                     {book.latest_revision && <p>Latest: {book.latest_revision}</p>}
