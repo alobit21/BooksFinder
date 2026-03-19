@@ -139,7 +139,7 @@ export default function Home() {
         />
         
         {/* Search Results Section */}
-        <section className="mb-12">
+        <section className="mb-12 px-4 sm:px-6 lg:px-8">
           {loading && !books.length && <LoadingGrid />}
           
           {error && (
@@ -151,14 +151,14 @@ export default function Home() {
           )}
           
           {books.length > 0 && (
-            <>
-              <div className="mb-6">
+            <div className="max-w-7xl mx-auto">
+              <div className="mb-8 p-6 bg-card rounded-lg border shadow-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
-                    <h2 className="text-2xl font-semibold">
+                    <h2 className="text-2xl font-semibold text-foreground">
                       {query && `Results for "${query}"`}
                     </h2>
-                    <p className="text-muted-foreground">
+                    <p className="text-muted-foreground mt-1">
                       {books.length} books found
                       {!showOnlyReadable && (
                         <span className="text-sm ml-2">
@@ -166,7 +166,7 @@ export default function Home() {
                         </span>
                       )}
                     </p>
-                    <div className="flex flex-wrap gap-2 mt-2">
+                    <div className="flex flex-wrap gap-2 mt-3">
                       <div className="flex items-center gap-1 text-xs">
                         <Badge variant="default" className="bg-green-600 text-xs">Full Text</Badge>
                         <span className="text-muted-foreground">Complete reading via Internet Archive</span>
@@ -204,7 +204,7 @@ export default function Home() {
                 loading={loadingMore}
                 hasMore={hasMore}
               />
-            </>
+            </div>
           )}
         </section>
 
