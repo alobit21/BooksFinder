@@ -69,18 +69,18 @@ export default function SearchPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-background py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Search Books</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-3xl font-bold text-foreground">Search Books</h1>
+          <p className="text-muted-foreground mt-2">
             Search through your uploaded book collection
           </p>
         </div>
 
         <div className="mb-8">
           <div className="relative">
-            <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 text-gray-400" />
+            <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
               placeholder="Search by title, author, or description..."
@@ -93,7 +93,7 @@ export default function SearchPage() {
 
         {searchQuery && (
           <div className="mb-4">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               Found {searchResults.length} {searchResults.length === 1 ? 'book' : 'books'}
             </p>
           </div>
@@ -112,8 +112,8 @@ export default function SearchPage() {
                         className="w-12 h-16 object-cover rounded"
                       />
                     ) : (
-                      <div className="w-12 h-16 bg-gray-200 rounded flex items-center justify-center">
-                        <BookOpen className="h-6 w-6 text-gray-400" />
+                      <div className="w-12 h-16 bg-muted rounded flex items-center justify-center">
+                        <BookOpen className="h-6 w-6 text-muted-foreground" />
                       </div>
                     )}
                     <div className="ml-4 flex-1">
@@ -128,12 +128,12 @@ export default function SearchPage() {
                 </CardHeader>
                 <CardContent>
                   {book.description && (
-                    <p className="text-sm text-gray-600 line-clamp-3">
+                    <p className="text-sm text-muted-foreground line-clamp-3">
                       {book.description}
                     </p>
                   )}
                   <div className="mt-4 flex justify-between items-center">
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-muted-foreground">
                       {book.fileType.toUpperCase()} • {Math.round(book.fileSize / 1024 / 1024)} MB
                     </span>
                     <Button
@@ -149,11 +149,11 @@ export default function SearchPage() {
           </div>
         ) : searchQuery ? (
           <div className="text-center py-12">
-            <p className="text-gray-500">No books found matching "{searchQuery}"</p>
+            <p className="text-muted-foreground">No books found matching "{searchQuery}"</p>
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-gray-500">
+            <p className="text-muted-foreground">
               Start typing to search through your uploaded books
             </p>
           </div>

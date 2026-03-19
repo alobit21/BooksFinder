@@ -83,7 +83,7 @@ export default function UploadBook() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-background py-8">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <Card>
           <CardHeader>
@@ -146,7 +146,7 @@ export default function UploadBook() {
                   accept=".pdf,.epub"
                   label="Book File *"
                   maxSize="32MB"
-                  icon={<BookOpen className="h-8 w-8 text-gray-400" />}
+                  icon={<BookOpen className="h-8 w-8 text-muted-foreground" />}
                 />
 
                 <SimpleUpload
@@ -154,7 +154,7 @@ export default function UploadBook() {
                   accept="image/*"
                   label="Cover Image (Optional)"
                   maxSize="4MB"
-                  icon={<Image className="h-8 w-8 text-gray-400" />}
+                  icon={<Image className="h-8 w-8 text-muted-foreground" />}
                 />
 
                 <div className="flex items-center space-x-2">
@@ -163,9 +163,9 @@ export default function UploadBook() {
                     id="isPublic"
                     checked={isPublic}
                     onChange={(e) => setIsPublic(e.target.checked)}
-                    className="rounded border-gray-300"
+                    className="rounded border-input"
                   />
-                  <Label htmlFor="isPublic" className="text-sm font-medium text-gray-700">
+                  <Label htmlFor="isPublic" className="text-sm font-medium text-foreground">
                     Make this book public
                   </Label>
                 </div>

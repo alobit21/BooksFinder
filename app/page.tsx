@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { searchBooks } from "../lib/openlibrary";
-import { Header } from "@/components/header";
 import { HeroSection } from "@/components/hero-section";
 import { BookCard } from "@/components/book-card";
 import { LoadingGrid } from "@/components/loading-skeleton";
@@ -113,8 +112,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header query={query} setQuery={setQuery} onSearch={handleSearch} />
-      
       <main>
         <HeroSection 
           query={query}
@@ -126,19 +123,19 @@ export default function Home() {
         <section className="mb-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Search Your Books</h2>
-              <p className="text-gray-600">
+              <h2 className="text-2xl font-bold text-foreground mb-2">Search Your Books</h2>
+              <p className="text-muted-foreground">
                 Search through books you've uploaded to your personal library
               </p>
             </div>
             
             <div className="max-w-md mx-auto">
               <div className="relative">
-                <BookOpen className="absolute left-3 top-1/2 h-4 w-4 text-gray-400" />
+                <BookOpen className="absolute left-3 top-1/2 h-4 w-4 text-muted-foreground" />
                 <input
                   type="text"
                   placeholder="Search your uploaded books..."
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-10 pr-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-ring bg-background text-foreground"
                   onChange={(e) => {
                     const query = e.target.value
                     // Navigate to search page with query

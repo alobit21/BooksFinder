@@ -107,7 +107,7 @@ export default function EditBook({ params }: { params: Promise<{ id: string }> }
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">Loading...</div>
       </div>
     )
@@ -115,9 +115,9 @@ export default function EditBook({ params }: { params: Promise<{ id: string }> }
 
   if (!book) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Book not found</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-4">Book not found</h2>
           <Link href="/dashboard">
             <Button>
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -130,7 +130,7 @@ export default function EditBook({ params }: { params: Promise<{ id: string }> }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
           <Link href="/dashboard">
@@ -204,10 +204,10 @@ export default function EditBook({ params }: { params: Promise<{ id: string }> }
                     accept="image/*"
                     label="Cover Image"
                     maxSize="4MB"
-                    icon={<Edit className="h-8 w-8 text-gray-400" />}
+                    icon={<Edit className="h-8 w-8 text-muted-foreground" />}
                   />
                   {coverUrl && (
-                    <div className="text-sm text-green-600">
+                    <div className="text-sm text-green-600 dark:text-green-400">
                       ✓ Cover uploaded successfully
                     </div>
                   )}
