@@ -45,10 +45,29 @@ export default function Home() {
   useEffect(() => {
     const fetchFeaturedBooks = async () => {
       try {
-        const featured = await searchBooks("popular", 1, 8)
-        setFeaturedBooks(featured.docs.slice(0, 8))
+        const popularSearches = ["Harry Potter", "Classic Literature", "Science Fiction", "Mystery"]
+        const allFeaturedBooks = []
+        
+        // Fetch books from each popular search (2 books per category = 8 total)
+        for (const search of popularSearches) {
+          const results = await searchBooks(search, 1, 2)
+          if (results.docs && results.docs.length > 0) {
+            allFeaturedBooks.push(...results.docs.slice(0, 2))
+          }
+        }
+        
+        // Shuffle the books to mix categories
+        const shuffled = allFeaturedBooks.sort(() => Math.random() - 0.5)
+        setFeaturedBooks(shuffled.slice(0, 8))
       } catch (error) {
         console.error("Failed to fetch featured books:", error)
+        // Fallback to generic popular search
+        try {
+          const featured = await searchBooks("popular", 1, 8)
+          setFeaturedBooks(featured.docs.slice(0, 8))
+        } catch (fallbackError) {
+          console.error("Fallback search failed:", fallbackError)
+        }
       }
     }
     fetchFeaturedBooks()
@@ -185,7 +204,7 @@ export default function Home() {
                   </div>
                   
                   <div className="flex items-center gap-2">
-                    <Filter className="h-4 w-4 text-muted-foreground" />
+                    <Filter className="h-4 w-4 text-foreground" />
                     <Button
                       variant={showOnlyReadable ? "default" : "outline"}
                       size="sm"
@@ -216,20 +235,22 @@ export default function Home() {
 
         {/* Featured Books Carousel */}
         {featuredBooks.length > 0 && !hasSearched && (
-          <section className="mb-12">
-            <SparksCarousel
-              title="Featured Books"
-              subtitle="Discover popular books from our collection"
-              items={featuredBooks.map((book) => ({
-                id: book.id || book.key || Math.random().toString(),
-                imageSrc: book.cover_i 
-                  ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
-                  : `https://picsum.photos/seed/${book.key || book.id || Math.random().toString()}/280/160.jpg`,
-                title: book.title,
-                count: book.edition_count || 0,
-                countLabel: "EDITIONS"
-              }))}
-            />
+          <section className="mb-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto">
+              <div className="mb-8">
+                <h2 className="text-2xl font-semibold text-foreground mb-2">
+                  Featured Books
+                </h2>
+                <p className="text-muted-foreground">
+                  Discover popular books from our collection
+                </p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+                {featuredBooks.map((book) => (
+                  <BookCard key={book.id || book.key} book={book} />
+                ))}
+              </div>
+            </div>
           </section>
         )}
       </main>
