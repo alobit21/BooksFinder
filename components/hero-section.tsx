@@ -3,16 +3,18 @@
 import { Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
 
 interface HeroSectionProps {
   query: string
   setQuery: (query: string) => void
   onSearch: (e: React.FormEvent) => void
+  onDirectSearch?: (query: string) => void
   loading?: boolean
   isExternalSearch?: boolean
 }
 
-export function HeroSection({ query, setQuery, onSearch, loading, isExternalSearch = false }: HeroSectionProps) {
+export function HeroSection({ query, setQuery, onSearch, onDirectSearch, loading, isExternalSearch = false }: HeroSectionProps) {
   return (
     <section className="py-20 px-4 text-center bg-gradient-to-br from-background via-background to-muted/20">
       <div className="container mx-auto max-w-4xl">
@@ -36,7 +38,7 @@ export function HeroSection({ query, setQuery, onSearch, loading, isExternalSear
               placeholder="Search for books, authors, topics..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="pl-12 pr-24 h-14 text-lg rounded-full border-2 transition-all duration-300 focus:border-primary focus:ring-4 focus:ring-primary/20"
+              className="pl-12 pr-24 h-14 text-lg rounded-full border-2 transition-all duration-300 focus:border-primary focus:ring-4 focus:ring-primary/20 text-foreground placeholder:text-muted-foreground"
               disabled={loading}
             />
             <Button 
@@ -49,17 +51,25 @@ export function HeroSection({ query, setQuery, onSearch, loading, isExternalSear
           </div>
         </form>
 
-        <div className="mt-8 flex flex-wrap justify-center gap-2 text-sm text-muted-foreground">
-          <span>Popular searches:</span>
-          {["Harry Potter", "Classic Literature", "Science Fiction", "Mystery"].map((term) => (
-            <button
-              key={term}
-              onClick={() => setQuery(term)}
-              className="hover:text-foreground transition-colors underline-offset-4 hover:underline"
-            >
-              {term}
-            </button>
-          ))}
+        <div className="mt-8">
+          <p className="text-sm text-muted-foreground mb-3">Popular searches:</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {[
+              { term: "Harry Potter", color: "bg-red-100 hover:bg-red-200 text-red-800 dark:bg-red-900/30 dark:hover:bg-red-900/50 dark:text-red-300" },
+              { term: "Classic Literature", color: "bg-blue-100 hover:bg-blue-200 text-blue-800 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 dark:text-blue-300" },
+              { term: "Science Fiction", color: "bg-green-100 hover:bg-green-200 text-green-800 dark:bg-green-900/30 dark:hover:bg-green-900/50 dark:text-green-300" },
+              { term: "Mystery", color: "bg-purple-100 hover:bg-purple-200 text-purple-800 dark:bg-purple-900/30 dark:hover:bg-purple-900/50 dark:text-purple-300" }
+            ].map(({ term, color }) => (
+              <Badge
+                key={term}
+                variant="secondary"
+                className={`cursor-pointer transition-all duration-200 hover:scale-105 px-3 py-1 ${color}`}
+                onClick={() => onDirectSearch?.(term)}
+              >
+                {term}
+              </Badge>
+            ))}
+          </div>
         </div>
       </div>
     </section>

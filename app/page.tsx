@@ -109,6 +109,11 @@ export default function Home() {
     [showOnlyReadable]
   );
 
+  const handleDirectSearch = (searchQuery: string) => {
+    setQuery(searchQuery);
+    debouncedSearch(searchQuery, 1, false);
+  };
+
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
@@ -135,6 +140,7 @@ export default function Home() {
           query={query}
           setQuery={setQuery}
           onSearch={handleSearch}
+          onDirectSearch={handleDirectSearch}
           loading={loading}
         />
         

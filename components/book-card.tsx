@@ -62,7 +62,7 @@ export function BookCard({ book }: BookCardProps) {
                   {book.title}
                 </h3>
                 {isReadable && (
-                  <Badge variant="default" className="text-xs shrink-0 bg-green-600 hover:bg-green-700">
+                  <Badge variant="default" className="text-xs shrink-0 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white">
                     Full Text
                   </Badge>
                 )}
