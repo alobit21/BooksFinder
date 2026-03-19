@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Navigation } from "@/components/navigation";
 import { SessionProvider } from "next-auth/react";
+import { BooksFooter } from "@/components/ui/books-footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,6 +39,7 @@ export default function RootLayout({
             <main className="flex-1">
               {children}
             </main>
+            <BooksFooter />
           </SessionProvider>
         </ThemeProvider>
       </body>
