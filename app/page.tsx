@@ -51,10 +51,12 @@ export default function Home() {
           setLoadingMore(true);
         }
         
-        const data = await searchBooks(searchQuery, pageNum, 20);
+        // Search through uploaded books API
+        const response = await fetch(`/api/books/search?q=${encodeURIComponent(searchQuery)}`);
+        const allBooks = await response.json();
         let filteredBooks = showOnlyReadable 
-          ? data.docs.filter((book: Book) => book.ia && book.ia.length > 0 && book.public_scan_b === true)
-          : data.docs;
+          ? allBooks.filter((book: Book) => book.ia && book.ia.length > 0 && book.public_scan_b === true)
+          : allBooks;
         
         // Sort to put IA books first (prioritize books with Internet Archive IDs)
         filteredBooks = filteredBooks.sort((a: Book, b: Book) => {
@@ -119,10 +121,46 @@ export default function Home() {
           setQuery={setQuery}
           onSearch={handleSearch}
           loading={loading}
-          isExternalSearch={!!externalQuery}
         />
         
-        <section className="container mx-auto px-4 py-8">
+        <section className="mb-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Search Your Books</h2>
+              <p className="text-gray-600">
+                Search through books you've uploaded to your personal library
+              </p>
+            </div>
+            
+            <div className="max-w-md mx-auto">
+              <div className="relative">
+                <BookOpen className="absolute left-3 top-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search your uploaded books..."
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  onChange={(e) => {
+                    const query = e.target.value
+                    // Navigate to search page with query
+                    if (query.trim()) {
+                      window.location.href = `/search?q=${encodeURIComponent(query)}`
+                    }
+                  }}
+                />
+                <Button
+                  onClick={() => window.location.href = '/search'}
+                  variant="outline"
+                  size="sm"
+                  className="absolute right-1 top-1/2"
+                >
+                  Advanced Search
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mb-12">
           {loading && !books.length && <LoadingGrid />}
           
           {error && (

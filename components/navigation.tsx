@@ -65,6 +65,9 @@ export function Navigation() {
                 <Link href="/discover" className="text-gray-600 hover:text-gray-900">
                   Discover
                 </Link>
+                <Link href="/search" className="text-gray-600 hover:text-gray-900">
+                  Search
+                </Link>
               </div>
             )}
           </div>

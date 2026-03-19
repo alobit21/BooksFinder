@@ -1,32 +1,20 @@
-// Simple database connection for demo purposes
-// In production, this would use the actual Prisma client
+import { PrismaClient } from "@/lib/generated/prisma/client";
+import { PrismaNeon } from "@prisma/adapter-neon";
 
-const mockPrismaClient = {
-  user: {
-    findUnique: async ({ where }: any) => null,
-    create: async (data: any) => ({ id: '1', ...data.data }),
-    findMany: async () => [],
-  },
-  book: {
-    findUnique: async ({ where }: any) => null,
-    create: async (data: any) => ({ id: '1', ...data.data }),
-    findMany: async () => [],
-    update: async ({ where, data }: any) => ({ id: where.id, ...data }),
-    delete: async ({ where }: any) => ({ id: where.id }),
-    findFirst: async ({ where }: any) => null,
-  },
-  session: {
-    findUnique: async ({ where }: any) => null,
-    create: async (data: any) => ({ id: '1', ...data.data }),
-  },
-  account: {
-    findUnique: async ({ where }: any) => null,
-    create: async (data: any) => ({ id: '1', ...data.data }),
-  },
-  verificationToken: {
-    findUnique: async ({ where }: any) => null,
-    create: async (data: any) => ({ id: '1', ...data.data }),
-  },
+// Create Neon adapter with connection string
+const adapter = new PrismaNeon({
+  connectionString: process.env.DATABASE_URL!,
+});
+
+// Prevent multiple instances during development (HMR)
+declare global {
+  // eslint-disable-next-line no-var
+  var prisma: PrismaClient | undefined;
 }
 
-export const prisma = mockPrismaClient
+export const prisma =
+  global.prisma ?? new PrismaClient({ adapter });
+
+if (process.env.NODE_ENV !== "production") {
+  global.prisma = prisma;
+}

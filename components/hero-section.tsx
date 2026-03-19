@@ -8,7 +8,7 @@ interface HeroSectionProps {
   query: string
   setQuery: (query: string) => void
   onSearch: (e: React.FormEvent) => void
-  loading: boolean
+  loading?: boolean
   isExternalSearch?: boolean
 }
 

@@ -24,11 +24,3 @@ export async function uploadFile(file: File, folder: string = 'books') {
     throw error
   }
 }
-
-export const cloudinary = {
-  v2: {
-    config: () => {
-      console.log('Mock Cloudinary configured')
-    }
-  }
-}

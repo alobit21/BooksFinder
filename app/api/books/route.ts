@@ -1,16 +1,11 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
-
-// Mock database for books
-const books = new Map()
+import { prisma } from "@/lib/db"
 
 export async function POST(request: Request) {
   try {
     const session = await auth()
-    console.log("POST - Session:", session)
-    
     if (!session?.user?.id) {
-      console.log("POST - No session found")
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
@@ -26,23 +21,19 @@ export async function POST(request: Request) {
       )
     }
 
-    const book = {
-      id: Date.now().toString(),
-      title,
-      author,
-      description,
-      fileUrl,
-      coverUrl,
-      fileType,
-      fileSize,
-      isPublic: isPublic || false,
-      userId: session.user.id,
-      createdAt: new Date().toISOString(),
-    }
-
-    books.set(book.id, book)
-    console.log("Book created:", book)
-    console.log("Total books in database:", books.size)
+    const book = await prisma.book.create({
+      data: {
+        title,
+        author,
+        description,
+        fileUrl,
+        coverUrl,
+        fileType,
+        fileSize,
+        isPublic: isPublic || false,
+        userId: session.user.id,
+      },
+    })
 
     return NextResponse.json(book, { status: 201 })
   } catch (error) {
@@ -57,22 +48,19 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
   try {
     const session = await auth()
-    console.log("GET - Session:", session)
-    
     if (!session?.user?.id) {
-      console.log("GET - No session found")
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
       )
     }
 
-    const userBooks = Array.from(books.values()).filter(book => book.userId === session.user.id)
-    console.log("Fetching books for user:", session.user.id)
-    console.log("All books in database:", Array.from(books.values()))
-    console.log("User books found:", userBooks)
+    const books = await prisma.book.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: "desc" },
+    })
 
-    return NextResponse.json(userBooks)
+    return NextResponse.json(books)
   } catch (error) {
     console.error("Books fetch error:", error)
     return NextResponse.json(
