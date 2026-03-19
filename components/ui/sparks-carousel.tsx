@@ -35,6 +35,23 @@ export const SparksCarousel = React.forwardRef<
   const carouselRef = React.useRef<HTMLDivElement>(null);
   const [isAtStart, setIsAtStart] = React.useState(true);
   const [isAtEnd, setIsAtEnd] = React.useState(false);
+  const [isPaused, setIsPaused] = React.useState(false);
+
+  // Auto-play functionality
+  React.useEffect(() => {
+    if (isPaused || items.length === 0) return;
+
+    const interval = setInterval(() => {
+      if (carouselRef.current && !isAtEnd) {
+        scroll("right");
+      } else if (carouselRef.current && isAtEnd) {
+        // Reset to beginning when reaching the end
+        carouselRef.current.scrollTo({ left: 0, behavior: "smooth" });
+      }
+    }, 3000); // Auto-play every 3 seconds
+
+    return () => clearInterval(interval);
+  }, [isPaused, isAtEnd, items.length]);
 
   // Function to scroll carousel
   const scroll = (direction: "left" | "right") => {
@@ -92,7 +109,11 @@ export const SparksCarousel = React.forwardRef<
         </div>
 
         {/* Carousel Section */}
-        <div className="relative">
+        <div 
+          className="relative"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
           <div
             ref={carouselRef}
             className="flex w-full space-x-4 overflow-x-auto pb-4 scrollbar-hide"

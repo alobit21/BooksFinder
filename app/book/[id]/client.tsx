@@ -68,7 +68,7 @@ export function BookDetailsClient({ book, iaId, isbn }: BookDetailsClientProps) 
 
         {/* Back Navigation */}
         <Link href="/">
-          <Button variant="ghost" className="mb-6">
+          <Button variant="ghost" className="mb-6 text-foreground hover:bg-accent hover:text-accent-foreground">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Search
           </Button>

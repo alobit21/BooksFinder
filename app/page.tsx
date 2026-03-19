@@ -48,23 +48,23 @@ export default function Home() {
         const popularSearches = ["Harry Potter", "Classic Literature", "Science Fiction", "Mystery"]
         const allFeaturedBooks = []
         
-        // Fetch books from each popular search (2 books per category = 8 total)
+        // Fetch books from each popular search (5 books per category = 20 total)
         for (const search of popularSearches) {
-          const results = await searchBooks(search, 1, 2)
+          const results = await searchBooks(search, 1, 5)
           if (results.docs && results.docs.length > 0) {
-            allFeaturedBooks.push(...results.docs.slice(0, 2))
+            allFeaturedBooks.push(...results.docs.slice(0, 5))
           }
         }
         
         // Shuffle the books to mix categories
         const shuffled = allFeaturedBooks.sort(() => Math.random() - 0.5)
-        setFeaturedBooks(shuffled.slice(0, 8))
+        setFeaturedBooks(shuffled.slice(0, 20))
       } catch (error) {
         console.error("Failed to fetch featured books:", error)
         // Fallback to generic popular search
         try {
-          const featured = await searchBooks("popular", 1, 8)
-          setFeaturedBooks(featured.docs.slice(0, 8))
+          const featured = await searchBooks("popular", 1, 20)
+          setFeaturedBooks(featured.docs.slice(0, 20))
         } catch (fallbackError) {
           console.error("Fallback search failed:", fallbackError)
         }
