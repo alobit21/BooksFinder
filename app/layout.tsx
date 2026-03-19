@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Navigation } from "@/components/navigation";
+import { SessionProvider } from "next-auth/react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BooksFinder - Discover Your Next Great Read",
-  description: "Search and discover books from Open Library's extensive collection",
+  title: "BooksFinder - Your Personal Library",
+  description: "Upload, manage, and read your personal book collection",
 };
 
 export default function RootLayout({
@@ -31,7 +33,12 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
-          {children}
+          <SessionProvider>
+            <Navigation />
+            <main className="flex-1">
+              {children}
+            </main>
+          </SessionProvider>
         </ThemeProvider>
       </body>
     </html>
