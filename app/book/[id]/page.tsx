@@ -9,6 +9,7 @@ interface BookPageProps {
   }
   searchParams: {
     ia?: string
+    isbn?: string
   }
 }
 
@@ -42,7 +43,7 @@ export async function generateMetadata({ params }: BookPageProps): Promise<Metad
 export default async function BookPage({ params, searchParams }: BookPageProps) {
   try {
     const { id } = await params
-    const { ia } = await searchParams
+    const { ia, isbn } = await searchParams
     
     let book
     try {
@@ -66,7 +67,7 @@ export default async function BookPage({ params, searchParams }: BookPageProps) 
       }
     }
     
-    return <BookDetailsClient book={book} iaId={ia} />
+    return <BookDetailsClient book={book} iaId={ia} isbn={isbn} />
   } catch (error) {
     console.error('Critical error in BookPage:', error)
     notFound()

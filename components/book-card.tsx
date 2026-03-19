@@ -13,6 +13,7 @@ interface BookCardProps {
     edition_count?: number
     ia?: string[]
     public_scan_b?: boolean
+    isbn?: string[]
   }
 }
 
@@ -24,7 +25,14 @@ export function BookCard({ book }: BookCardProps) {
   
   const isReadable = book.ia && book.ia.length > 0 && book.public_scan_b === true
   const iaId = isReadable ? book.ia![0] : null
-  const bookUrl = iaId ? `/book/${workId}?ia=${iaId}` : `/book/${workId}`
+  const isbn = book.isbn && book.isbn.length > 0 ? book.isbn[0] : null
+  
+  // Build URL with both IA ID and ISBN for maximum compatibility
+  const params = new URLSearchParams()
+  if (iaId) params.set('ia', iaId)
+  if (isbn) params.set('isbn', isbn)
+  
+  const bookUrl = `/book/${workId}${params.toString() ? `?${params.toString()}` : ''}`
 
   return (
     <Link href={bookUrl}>

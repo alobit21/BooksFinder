@@ -26,6 +26,7 @@ interface SubjectClientProps {
       author_name?: string[]
       ia?: string[]
       public_scan_b?: boolean
+      isbn?: string[]
     }>
   }
 }
@@ -80,7 +81,14 @@ export function SubjectClient({ subjectName, data }: SubjectClientProps) {
             ).map((work) => {
               const workId = work.key.replace('/works/', '')
               const iaId = work.ia![0] // Safe because we filtered for ia.length > 0
-              const bookUrl = `/book/${workId}?ia=${iaId}`
+              const isbn = work.isbn && work.isbn.length > 0 ? work.isbn[0] : null
+              
+              // Build URL with both IA ID and ISBN
+              const params = new URLSearchParams()
+              if (iaId) params.set('ia', iaId)
+              if (isbn) params.set('isbn', isbn)
+              
+              const bookUrl = `/book/${workId}${params.toString() ? `?${params.toString()}` : ''}`
               const coverUrl = work.cover_i 
                 ? `https://covers.openlibrary.org/b/id/${work.cover_i}-M.jpg`
                 : null

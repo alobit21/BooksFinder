@@ -22,6 +22,7 @@ interface Book {
   edition_count?: number;
   ia?: string[];
   public_scan_b?: boolean;
+  isbn?: string[];
 }
 
 export default function Home() {
