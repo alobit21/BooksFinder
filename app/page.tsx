@@ -7,7 +7,7 @@ import { Header } from "@/components/header";
 import { HeroSection } from "@/components/hero-section";
 import { BookCard } from "@/components/book-card";
 import { LoadingGrid } from "@/components/loading-skeleton";
-import { EmptyState, InitialEmptyState } from "@/components/empty-state";
+import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
 import { LoadMore } from "@/components/load-more";
 import { Button } from "@/components/ui/button";
@@ -169,10 +169,6 @@ export default function Home() {
           
           {!loading && !error && hasSearched && books.length === 0 && (
             <EmptyState />
-          )}
-          
-          {!loading && !error && !hasSearched && (
-            <InitialEmptyState />
           )}
           
           {books.length > 0 && (

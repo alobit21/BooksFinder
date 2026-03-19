@@ -12,14 +12,3 @@ export function EmptyState() {
   )
 }
 
-export function InitialEmptyState() {
-  return (
-    <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="text-6xl mb-4">📚</div>
-      <h2 className="text-2xl font-semibold mb-2">Discover Your Next Great Read</h2>
-      <p className="text-muted-foreground max-w-md">
-        Search for books, authors, or topics to explore our extensive collection from Open Library.
-      </p>
-    </div>
-  )
-}

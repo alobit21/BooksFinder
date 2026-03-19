@@ -17,6 +17,14 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Faster dev builds - skip type checking in dev
+  typescript: {
+    ignoreBuildErrors: process.env.NODE_ENV === 'development',
+  },
+  // Optimize development
+  devIndicators: {
+    position: 'bottom-right',
+  },
 };
 
 export default nextConfig;
