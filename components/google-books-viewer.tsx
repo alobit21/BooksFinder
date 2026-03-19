@@ -44,7 +44,7 @@ export function GoogleBooksViewer({ isbn, title, author, className }: GoogleBook
   }, [isbn, title, author])
 
   const initializeViewer = () => {
-    if (typeof window !== 'undefined' && window.google) {
+    if (typeof window !== 'undefined' && window.google?.books) {
       window.google.books.load()
       
       window.google.books.setOnLoadCallback(() => {
@@ -65,16 +65,22 @@ export function GoogleBooksViewer({ isbn, title, author, className }: GoogleBook
 
     let identifier = ""
     
-    // Try ISBN first (most reliable)
+    // Always try to load something, even with minimal info
     if (isbn) {
       identifier = `ISBN:${isbn}`
       console.log('Loading Google Book with ISBN:', identifier)
-    } 
-    // Fall back to title + author
-    else if (title) {
-      const query = title + (author ? ` ${author}` : "")
-      identifier = query
-      console.log('Loading Google Book with query:', identifier)
+    } else if (title) {
+      // Try title only first
+      identifier = title
+      console.log('Loading Google Book with title:', identifier)
+    } else if (author) {
+      // Fall back to author only
+      identifier = author
+      console.log('Loading Google Book with author:', identifier)
+    } else {
+      // Last resort - show search interface
+      identifier = "books"
+      console.log('Loading Google Books search interface')
     }
 
     if (identifier) {
@@ -82,12 +88,43 @@ export function GoogleBooksViewer({ isbn, title, author, className }: GoogleBook
         console.log('Google Books viewer loaded successfully')
       }, (error: any) => {
         console.warn('Failed to load book in Google Books viewer:', error)
-        showFallbackMessage()
+        // Try a more generic search as fallback
+        if (isbn && identifier !== `ISBN:${isbn}`) {
+          console.log('Retrying with ISBN format...')
+          loadBookWithISBN()
+        } else if (title && identifier !== title) {
+          console.log('Retrying with title...')
+          loadBookWithTitle()
+        } else {
+          showFallbackMessage()
+        }
       })
     } else {
       console.warn('No identifier available for Google Books viewer')
       showFallbackMessage()
     }
+  }
+
+  const loadBookWithISBN = () => {
+    if (!viewerInstanceRef.current || !isbn) return
+    const identifier = `ISBN:${isbn}`
+    viewerInstanceRef.current.load(identifier, () => {
+      console.log('Google Books viewer loaded with ISBN fallback')
+    }, (error: any) => {
+      console.warn('ISBN fallback also failed:', error)
+      showFallbackMessage()
+    })
+  }
+
+  const loadBookWithTitle = () => {
+    if (!viewerInstanceRef.current || !title) return
+    const query = title + (author ? ` ${author}` : "")
+    viewerInstanceRef.current.load(query, () => {
+      console.log('Google Books viewer loaded with title fallback')
+    }, (error: any) => {
+      console.warn('Title fallback also failed:', error)
+      showFallbackMessage()
+    })
   }
 
   const showFallbackMessage = () => {
@@ -101,12 +138,13 @@ export function GoogleBooksViewer({ isbn, title, author, className }: GoogleBook
               </svg>
             </div>
             <p class="text-muted-foreground mb-2">
-              This book is not available in Google Books preview.
+              This specific book isn't available in Google Books preview.
             </p>
-            <p class="text-sm text-muted-foreground">
-              Try searching for it on other platforms or check back later.
+            <p class="text-sm text-muted-foreground mb-4">
+              But don't worry! Check the "Alternative Reading Options" section below for more ways to read this book.
             </p>
-            ${isbn ? `<p class="text-xs text-muted-foreground mt-2">ISBN: ${isbn}</p>` : ''}
+            ${isbn ? `<p class="text-xs text-muted-foreground">ISBN: ${isbn}</p>` : ''}
+            ${title ? `<p class="text-xs text-muted-foreground">Try searching: "${title}"</p>` : ''}
           </div>
         </div>
       `
@@ -147,7 +185,7 @@ export function GoogleBooksViewer({ isbn, title, author, className }: GoogleBook
 declare global {
   interface Window {
     google?: {
-      books: {
+      books?: {
         load: (options?: { language?: string }) => void
         setOnLoadCallback: (callback: () => void) => void
         DefaultViewer: new (container: HTMLElement) => {

@@ -9,9 +9,10 @@ interface HeroSectionProps {
   setQuery: (query: string) => void
   onSearch: (e: React.FormEvent) => void
   loading: boolean
+  isExternalSearch?: boolean
 }
 
-export function HeroSection({ query, setQuery, onSearch, loading }: HeroSectionProps) {
+export function HeroSection({ query, setQuery, onSearch, loading, isExternalSearch = false }: HeroSectionProps) {
   return (
     <section className="py-20 px-4 text-center bg-gradient-to-br from-background via-background to-muted/20">
       <div className="container mx-auto max-w-4xl">
@@ -20,7 +21,10 @@ export function HeroSection({ query, setQuery, onSearch, loading }: HeroSectionP
             Discover Your Next Great Read
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Search through millions of books from Open Library's extensive collection
+            {isExternalSearch 
+              ? "Found through external platforms - search for more books in our system"
+              : "Search through millions of books from Open Library's extensive collection"
+            }
           </p>
         </div>
 

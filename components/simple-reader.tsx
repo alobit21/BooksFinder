@@ -3,7 +3,8 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ExternalLink, BookOpen, Search } from "lucide-react"
+import { ExternalLink, BookOpen, Search, ArrowLeft } from "lucide-react"
+import Link from "next/link"
 
 interface SimpleReaderProps {
   title?: string
@@ -14,15 +15,9 @@ interface SimpleReaderProps {
 }
 
 export function SimpleReader({ title, author, isbn, iaId, className }: SimpleReaderProps) {
+  const searchQuery = title || author ? `${title} ${author}`.trim() : ''
+
   const searchQueries = [
-    {
-      name: "Google Books",
-      url: isbn 
-        ? `https://books.google.com/books?id=${isbn}`
-        : `https://books.google.com/books?q=${encodeURIComponent(`${title || ''} ${author || ''}`)}`,
-      icon: <BookOpen className="h-4 w-4" />,
-      description: "Search on Google Books"
-    },
     {
       name: "Internet Archive",
       url: iaId 
@@ -93,6 +88,17 @@ export function SimpleReader({ title, author, isbn, iaId, className }: SimpleRea
               <p className="text-xs text-muted-foreground">
                 <strong>ISBN:</strong> {isbn}
               </p>
+            </div>
+          )}
+          
+          {title && (
+            <div className="mt-4">
+              <Button asChild className="w-full">
+                <Link href={`/?q=${encodeURIComponent(searchQuery)}`} className="flex items-center justify-center gap-2">
+                  <ArrowLeft className="h-4 w-4" />
+                  Search for More Books in Our System
+                </Link>
+              </Button>
             </div>
           )}
         </div>

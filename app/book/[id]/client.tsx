@@ -7,8 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Book, User, Tag, Download, ExternalLink } from "lucide-react"
 import { Breadcrumbs } from "@/components/breadcrumbs"
-import { GoogleBooksViewer } from "@/components/google-books-viewer"
 import { SimpleReader } from "@/components/simple-reader"
+import { AIReader } from "@/components/ai-reader"
 
 interface BookDetailsClientProps {
   book: {
@@ -226,77 +226,45 @@ export function BookDetailsClient({ book, iaId, isbn }: BookDetailsClientProps) 
             </div>
 
             {/* Embedded Reader */}
-            {(iaId || isbn) && (
-              <div>
-                <h2 className="text-xl font-semibold mb-3">Read Book</h2>
-                
-                {/* Internet Archive Reader */}
-                {iaId && (
-                  <div className="mb-4">
-                    <Card>
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <h3 className="font-medium">Internet Archive Reader</h3>
-                          <Badge variant="outline">Full Text</Badge>
-                        </div>
-                        <iframe
-                          src={`https://archive.org/embed/${iaId}`}
-                          className="w-full h-[600px] rounded-xl border"
-                          allowFullScreen
-                        />
-                      </CardContent>
-                    </Card>
-                  </div>
-                )}
-                
-                {/* Google Books Viewer */}
-                {(isbn || book.title) && (
-                  <div className="mb-4">
-                    <Card>
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <h3 className="font-medium">Google Books Preview</h3>
-                          <Badge variant="outline">Preview</Badge>
-                        </div>
-                        <GoogleBooksViewer 
-                          isbn={isbn}
-                          title={book.title}
-                          author={book.authors?.map(a => a.author?.name || a.name).join(', ')}
-                        />
-                      </CardContent>
-                    </Card>
-                  </div>
-                )}
-                
-                {/* Simple Reader - Always Available Fallback */}
-                <SimpleReader 
-                  title={book.title}
-                  author={book.authors?.map(a => a.author?.name || a.name).join(', ')}
-                  isbn={isbn}
-                  iaId={iaId}
-                />
-              </div>
-            )}
-            
-            {/* No reading options available */}
-            {(!iaId && !isbn) && (
-              <div>
-                <h2 className="text-xl font-semibold mb-3">Read Book</h2>
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="text-center">
-                      <Book className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground mb-4">
-                        This book is not available for reading through our integrated services.
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Try searching for it on external platforms or check your local library.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
+            <div>
+              <h2 className="text-xl font-semibold mb-3">Read Book</h2>
+              
+              {/* Internet Archive Reader - Always Show if Available */}
+              {iaId && (
+                <div className="mb-4">
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="font-medium">Internet Archive Reader</h3>
+                        <Badge variant="outline" className="text-green-600">Full Text</Badge>
+                      </div>
+                      <iframe
+                        src={`https://archive.org/embed/${iaId}`}
+                        className="w-full h-[600px] rounded-xl border"
+                        allowFullScreen
+                      />
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+              
+              {/* AI Reader - Smart Book Analysis */}
+              <AIReader 
+                title={book.title}
+                author={book.authors?.map(a => a.author?.name || a.name).join(', ')}
+                isbn={isbn}
+                iaId={iaId}
+                className="mb-4"
+              />
+              
+              {/* Simple Reader - Always Available Fallback */}
+              <SimpleReader 
+                title={book.title}
+                author={book.authors?.map(a => a.author?.name || a.name).join(', ')}
+                isbn={isbn}
+                iaId={iaId}
+              />
+            </div>
 
             {/* Additional Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

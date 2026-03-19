@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { searchBooks } from "../lib/openlibrary";
 import { Header } from "@/components/header";
 import { HeroSection } from "@/components/hero-section";
@@ -26,11 +27,13 @@ interface Book {
 }
 
 export default function Home() {
-  const [query, setQuery] = useState("");
+  const searchParams = useSearchParams();
+  const externalQuery = searchParams.get('q'); // Handle external search queries
+  const [query, setQuery] = useState(externalQuery || "");
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [hasSearched, setHasSearched] = useState(false);
+  const [hasSearched, setHasSearched] = useState(!!externalQuery);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -49,9 +52,23 @@ export default function Home() {
         }
         
         const data = await searchBooks(searchQuery, pageNum, 20);
-        const filteredBooks = showOnlyReadable 
+        let filteredBooks = showOnlyReadable 
           ? data.docs.filter((book: Book) => book.ia && book.ia.length > 0 && book.public_scan_b === true)
           : data.docs;
+        
+        // Sort to put IA books first (prioritize books with Internet Archive IDs)
+        filteredBooks = filteredBooks.sort((a: Book, b: Book) => {
+          // Books with IA come first
+          const aHasIA = a.ia && a.ia.length > 0 && a.public_scan_b === true ? 1 : 0;
+          const bHasIA = b.ia && b.ia.length > 0 && b.public_scan_b === true ? 1 : 0;
+          
+          if (aHasIA !== bHasIA) {
+            return bHasIA - aHasIA; // bHasIA first if different
+          }
+          
+          // If both have IA or both don't have IA, maintain original order
+          return 0;
+        });
         
         if (isLoadMore) {
           setBooks(prev => [...prev, ...filteredBooks]);
@@ -98,10 +115,11 @@ export default function Home() {
       
       <main>
         <HeroSection 
-          query={query} 
-          setQuery={setQuery} 
-          onSearch={handleSearch} 
+          query={query}
+          setQuery={setQuery}
+          onSearch={handleSearch}
           loading={loading}
+          isExternalSearch={!!externalQuery}
         />
         
         <section className="container mx-auto px-4 py-8">
@@ -129,7 +147,22 @@ export default function Home() {
                     </h2>
                     <p className="text-muted-foreground">
                       {books.length} books found
+                      {!showOnlyReadable && (
+                        <span className="text-sm ml-2">
+                          (Books with full text shown first)
+                        </span>
+                      )}
                     </p>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      <div className="flex items-center gap-1 text-xs">
+                        <Badge variant="default" className="bg-green-600 text-xs">Full Text</Badge>
+                        <span className="text-muted-foreground">Complete reading via Internet Archive</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-xs">
+                        <Badge variant="default" className="bg-blue-600 text-xs">Preview</Badge>
+                        <span className="text-muted-foreground">Preview via external links</span>
+                      </div>
+                    </div>
                   </div>
                   
                   <div className="flex items-center gap-2">
