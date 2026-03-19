@@ -5,6 +5,7 @@ import { prisma } from "./db"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.NEXTAUTH_SECRET || "demo-secret-change-in-production",
+  trustHost: true,
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -12,13 +13,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials) {
+      async authorize(credentials: Partial<Record<"email" | "password", unknown>>) {
         if (!credentials?.email || !credentials?.password) {
           return null
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
+          where: { email: credentials.email as string }
         })
 
         if (!user) {
@@ -27,7 +28,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         const isPasswordValid = await bcrypt.compare(
-          credentials.password,
+          credentials.password as string,
           user.password
         )
 

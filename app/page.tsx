@@ -121,43 +121,6 @@ export default function Home() {
         />
         
         <section className="mb-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-foreground mb-2">Search Your Books</h2>
-              <p className="text-muted-foreground">
-                Search through books you've uploaded to your personal library
-              </p>
-            </div>
-            
-            <div className="max-w-md mx-auto">
-              <div className="relative">
-                <BookOpen className="absolute left-3 top-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search your uploaded books..."
-                  className="w-full pl-10 pr-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-ring bg-background text-foreground"
-                  onChange={(e) => {
-                    const query = e.target.value
-                    // Navigate to search page with query
-                    if (query.trim()) {
-                      window.location.href = `/search?q=${encodeURIComponent(query)}`
-                    }
-                  }}
-                />
-                <Button
-                  onClick={() => window.location.href = '/search'}
-                  variant="outline"
-                  size="sm"
-                  className="absolute right-1 top-1/2"
-                >
-                  Advanced Search
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="mb-12">
           {loading && !books.length && <LoadingGrid />}
           
           {error && (
