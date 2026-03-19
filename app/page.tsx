@@ -9,6 +9,9 @@ import { LoadingGrid } from "@/components/loading-skeleton";
 import { EmptyState, InitialEmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
 import { LoadMore } from "@/components/load-more";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { BookOpen, Filter } from "lucide-react";
 
 interface Book {
   key: string;
@@ -17,6 +20,8 @@ interface Book {
   first_publish_year?: number;
   cover_i?: number;
   edition_count?: number;
+  ia?: string[];
+  public_scan_b?: boolean;
 }
 
 export default function Home() {
@@ -28,6 +33,7 @@ export default function Home() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [showOnlyReadable, setShowOnlyReadable] = useState(false);
 
   const debouncedSearch = useCallback(
     async (searchQuery: string, pageNum: number = 1, isLoadMore: boolean = false) => {
@@ -42,15 +48,18 @@ export default function Home() {
         }
         
         const data = await searchBooks(searchQuery, pageNum, 20);
+        const filteredBooks = showOnlyReadable 
+          ? data.docs.filter((book: Book) => book.ia && book.ia.length > 0 && book.public_scan_b === true)
+          : data.docs;
         
         if (isLoadMore) {
-          setBooks(prev => [...prev, ...data.docs]);
+          setBooks(prev => [...prev, ...filteredBooks]);
         } else {
-          setBooks(data.docs);
+          setBooks(filteredBooks);
         }
         
         setHasSearched(true);
-        setHasMore(data.docs.length === 20);
+        setHasMore(filteredBooks.length === 20);
         setPage(pageNum);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
@@ -60,7 +69,7 @@ export default function Home() {
         setLoadingMore(false);
       }
     },
-    []
+    [showOnlyReadable]
   );
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -112,12 +121,29 @@ export default function Home() {
           {books.length > 0 && (
             <>
               <div className="mb-6">
-                <h2 className="text-2xl font-semibold">
-                  {query && `Results for "${query}"`}
-                </h2>
-                <p className="text-muted-foreground">
-                  {books.length} books found
-                </p>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div>
+                    <h2 className="text-2xl font-semibold">
+                      {query && `Results for "${query}"`}
+                    </h2>
+                    <p className="text-muted-foreground">
+                      {books.length} books found
+                    </p>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Filter className="h-4 w-4 text-muted-foreground" />
+                    <Button
+                      variant={showOnlyReadable ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setShowOnlyReadable(!showOnlyReadable)}
+                      className="flex items-center gap-2"
+                    >
+                      <BookOpen className="h-4 w-4" />
+                      {showOnlyReadable ? "All Books" : "Readable Only"}
+                    </Button>
+                  </div>
+                </div>
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
