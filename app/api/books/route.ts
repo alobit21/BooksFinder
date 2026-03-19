@@ -36,10 +36,10 @@ export async function POST(request: Request) {
     })
 
     return NextResponse.json(book, { status: 201 })
-  } catch (error) {
-    console.error("Book creation error:", error)
+  } catch (error: any) {
+    console.error("Book creation error details:", error.message, error.stack)
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: error.message || "Internal server error" },
       { status: 500 }
     )
   }
