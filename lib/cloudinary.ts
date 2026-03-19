@@ -1,43 +1,34 @@
-import { v2 as cloudinary } from 'cloudinary'
-
-// Configure Cloudinary
-const cloudName = process.env.CLOUDINARY_CLOUD_NAME || 'demo'
-const apiKey = process.env.CLOUDINARY_API_KEY || 'demo'
-const apiSecret = process.env.CLOUDINARY_API_SECRET || 'demo'
-
-// Initialize Cloudinary
-const cloudinaryInstance = cloudinary({
-  cloud: {
-    cloudName,
-    apiKey,
-    apiSecret,
-  },
-})
+// Mock Cloudinary upload for demo purposes
+// In production, this would upload to Cloudinary
 
 export async function uploadFile(file: File, folder: string = 'books') {
   try {
-    const arrayBuffer = await file.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
+    // Simulate upload delay
+    await new Promise(resolve => setTimeout(resolve, 1000))
     
-    const result = await new Promise((resolve, reject) => {
-      cloudinaryInstance.uploader.upload_stream(
-        {
-          resource_type: 'auto',
-          folder,
-          public_id: `${Date.now()}-${file.name}`,
-        },
-        (error, result) => {
-          if (error) reject(error)
-          else resolve(result)
-        }
-      ).end(buffer)
-    })
-
+    // Create a mock URL for demo
+    const mockUrl = `https://picsum.photos/seed/${file.name}-${Date.now()}/400/600.jpg`
+    
+    const result = {
+      secure_url: mockUrl,
+      public_id: `${folder}/${Date.now()}-${file.name}`,
+      resource_type: folder === 'covers' ? 'image' : 'raw',
+      format: file.name.split('.').pop() || 'pdf',
+      bytes: file.size
+    }
+    
+    console.log('Mock upload successful:', result)
     return result
   } catch (error) {
-    console.error('Cloudinary upload error:', error)
+    console.error('Upload error:', error)
     throw error
   }
 }
 
-export { cloudinaryInstance }
+export const cloudinary = {
+  v2: {
+    config: () => {
+      console.log('Mock Cloudinary configured')
+    }
+  }
+}
