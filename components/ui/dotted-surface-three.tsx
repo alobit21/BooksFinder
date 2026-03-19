@@ -1,199 +1,193 @@
-'use client';
-import { cn } from '@/lib/utils';
-import { useTheme } from '@/components/theme-provider';
-import React, { useEffect, useRef } from 'react';
-import * as THREE from 'three';
+"use client"
 
-type DottedSurfaceProps = Omit<React.ComponentProps<'div'>, 'ref'>;
+import { cn } from "@/lib/utils"
+import { useTheme } from "@/components/theme-provider"
+import React, { useEffect, useRef } from "react"
+import * as THREE from "three"
+
+type DottedSurfaceProps = Omit<React.ComponentProps<"div">, "ref">
 
 export function DottedSurfaceThree({ className, ...props }: DottedSurfaceProps) {
-	const { theme } = useTheme();
+  const { resolvedTheme } = useTheme()
 
-	const containerRef = useRef<HTMLDivElement>(null);
-	const sceneRef = useRef<{
-		scene: THREE.Scene;
-		camera: THREE.PerspectiveCamera;
-		renderer: THREE.WebGLRenderer;
-		particles: THREE.Points[];
-		animationId: number;
-		count: number;
-	} | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null)
+  const sceneRef = useRef<{
+    scene: THREE.Scene
+    camera: THREE.PerspectiveCamera
+    renderer: THREE.WebGLRenderer
+    animationId: number
+  } | null>(null)
 
-	useEffect(() => {
-		if (!containerRef.current) return;
+  useEffect(() => {
+    if (!containerRef.current) return
 
-		console.log('DottedSurfaceThree: Initializing...');
+    const width = containerRef.current.clientWidth
+    const height = containerRef.current.clientHeight
 
-		const SEPARATION = 80;
-		const AMOUNTX = 50;
-		const AMOUNTY = 40;
+    if (!width || !height) return // ✅ prevents invisible canvas bug
 
-		// Scene setup
-		const scene = new THREE.Scene();
-		// Remove fog for better visibility
+    const SEPARATION = 80
+    const AMOUNTX = 50
+    const AMOUNTY = 40
 
-		const camera = new THREE.PerspectiveCamera(
-			60,
-			containerRef.current.clientWidth / containerRef.current.clientHeight,
-			1,
-			10000,
-		);
-		camera.position.set(0, 200, 800);
+    // Scene
+    const scene = new THREE.Scene()
 
-		const renderer = new THREE.WebGLRenderer({
-			alpha: true,
-			antialias: true,
-		});
-		renderer.setPixelRatio(window.devicePixelRatio);
-		renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
-		renderer.setClearColor(0x000000, 0); // Transparent background
+    // Camera
+    const camera = new THREE.PerspectiveCamera(60, width / height, 1, 10000)
+    camera.position.set(0, 200, 800)
 
-		containerRef.current.appendChild(renderer.domElement);
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true,
+    })
+    renderer.setPixelRatio(window.devicePixelRatio)
+    renderer.setSize(width, height)
+    renderer.setClearColor(0x000000, 0)
 
-		console.log('DottedSurfaceThree: Renderer appended to DOM');
+    containerRef.current.appendChild(renderer.domElement)
 
-		// Create particles
-		const particles: THREE.Points[] = [];
-		const positions: number[] = [];
-		const colors: number[] = [];
+    // Geometry
+    const geometry = new THREE.BufferGeometry()
+    const positions: number[] = []
+    const colors: number[] = []
 
-		// Create geometry for all particles
-		const geometry = new THREE.BufferGeometry();
+    for (let ix = 0; ix < AMOUNTX; ix++) {
+      for (let iy = 0; iy < AMOUNTY; iy++) {
+        const x = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2
+        const y = 0
+        const z = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2
 
-		for (let ix = 0; ix < AMOUNTX; ix++) {
-			for (let iy = 0; iy < AMOUNTY; iy++) {
-				const x = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2;
-				const y = 0; // Will be animated
-				const z = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2;
+        positions.push(x, y, z)
 
-				positions.push(x, y, z);
-				if (theme === 'dark') {
-					colors.push(100, 100, 255); // Blue for dark theme
-				} else {
-					colors.push(255, 100, 100); // Red for light theme
-				}
-			}
-		}
+        // ✅ Correct theme handling
+        if (resolvedTheme === "dark") {
+          colors.push(120, 160, 255)
+        } else {
+          colors.push(20, 20, 20)
+        }
+      }
+    }
 
-		geometry.setAttribute(
-			'position',
-			new THREE.Float32BufferAttribute(positions, 3),
-		);
-		geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    geometry.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(positions, 3)
+    )
+    geometry.setAttribute(
+      "color",
+      new THREE.Float32BufferAttribute(colors, 3)
+    )
 
-		// Create material
-		const material = new THREE.PointsMaterial({
-			size: 12,
-			vertexColors: true,
-			transparent: true,
-			opacity: 1.0,
-			sizeAttenuation: true,
-		});
+    // ✅ Fixed: use resolvedTheme everywhere
+    const material = new THREE.PointsMaterial({
+      size: 14,
+      vertexColors: true,
+      transparent: true,
+      opacity: resolvedTheme === "dark" ? 0.6 : 1,
+    })
 
-		// Create points object
-		const points = new THREE.Points(geometry, material);
-		scene.add(points);
+    // Optional glow in dark mode
+    if (resolvedTheme === "dark") {
+      material.blending = THREE.AdditiveBlending
+    }
 
-		let count = 0;
-		let animationId: number = 0;
+    const points = new THREE.Points(geometry, material)
+    scene.add(points)
 
-		// Animation function
-		const animate = () => {
-			animationId = requestAnimationFrame(animate);
+    let count = 0
+    let animationId: number
 
-			const positionAttribute = geometry.attributes.position;
-			const positions = positionAttribute.array as Float32Array;
+    const animate = () => {
+      animationId = requestAnimationFrame(animate)
 
-			let i = 0;
-			for (let ix = 0; ix < AMOUNTX; ix++) {
-				for (let iy = 0; iy < AMOUNTY; iy++) {
-					const index = i * 3;
+      const positions = geometry.attributes.position.array as Float32Array
 
-					// Animate Y position with sine waves
-					positions[index + 1] =
-						Math.sin((ix + count) * 0.3) * 30 +
-						Math.sin((iy + count) * 0.5) * 30;
+      let i = 0
+      for (let ix = 0; ix < AMOUNTX; ix++) {
+        for (let iy = 0; iy < AMOUNTY; iy++) {
+          const index = i * 3
 
-					i++;
-				}
-			}
+          positions[index + 1] =
+            Math.sin((ix + count) * 0.3) * 30 +
+            Math.sin((iy + count) * 0.5) * 30
 
-			positionAttribute.needsUpdate = true;
+          i++
+        }
+      }
 
-			// Update point sizes based on wave
-			const customMaterial = material as THREE.PointsMaterial & {
-				uniforms?: any;
-			};
-			if (!customMaterial.uniforms) {
-				// For dynamic size changes, we'd need a custom shader
-				// For now, keeping constant size for performance
-			}
+      geometry.attributes.position.needsUpdate = true
 
-			renderer.render(scene, camera);
-			count += 0.1;
+      renderer.render(scene, camera)
+      count += 0.08
+    }
 
-			// Store references after first animation frame
-			if (sceneRef.current === null) {
-				sceneRef.current = {
-					scene,
-					camera,
-					renderer,
-					particles: [points],
-					animationId,
-					count,
-				};
-			}
-		};
+    const handleResize = () => {
+      if (!containerRef.current) return
 
-		// Handle window resize
-		const handleResize = () => {
-			if (containerRef.current) {
-				camera.aspect = containerRef.current.clientWidth / containerRef.current.clientHeight;
-				camera.updateProjectionMatrix();
-				renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
-			}
-		};
+      const width = containerRef.current.clientWidth
+      const height = containerRef.current.clientHeight
 
-		window.addEventListener('resize', handleResize);
+      if (!width || !height) return
 
-		// Start animation
-		animate();
+      camera.aspect = width / height
+      camera.updateProjectionMatrix()
+      renderer.setSize(width, height)
+    }
 
-		// Cleanup function
-		return () => {
-			window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize)
 
-			if (sceneRef.current) {
-				cancelAnimationFrame(sceneRef.current.animationId);
+    animate()
 
-				// Clean up Three.js objects
-				sceneRef.current.scene.traverse((object) => {
-					if (object instanceof THREE.Points) {
-						object.geometry.dispose();
-						if (Array.isArray(object.material)) {
-							object.material.forEach((material) => material.dispose());
-						} else {
-							object.material.dispose();
-						}
-					}
-				});
+    sceneRef.current = {
+      scene,
+      camera,
+      renderer,
+      animationId,
+    }
 
-				sceneRef.current.renderer.dispose();
+    return () => {
+      window.removeEventListener("resize", handleResize)
 
-				if (containerRef.current && sceneRef.current.renderer.domElement) {
-					containerRef.current.removeChild(
-						sceneRef.current.renderer.domElement,
-					);
-				}
-			}
-		};
-	}, [theme]);
+      if (sceneRef.current) {
+        cancelAnimationFrame(sceneRef.current.animationId)
 
-	return (
-		<div
-			ref={containerRef}
-			className={cn('pointer-events-none absolute inset-0 z-0 bg-red-500/20', className)}
-			{...props}
-		/>
-	);
+        sceneRef.current.scene.traverse((obj) => {
+          if (obj instanceof THREE.Points) {
+            obj.geometry.dispose()
+            if (Array.isArray(obj.material)) {
+              obj.material.forEach((m) => m.dispose())
+            } else {
+              obj.material.dispose()
+            }
+          }
+        })
+
+        sceneRef.current.renderer.dispose()
+
+        if (
+          containerRef.current &&
+          sceneRef.current.renderer.domElement &&
+          containerRef.current.contains(
+            sceneRef.current.renderer.domElement
+          )
+        ) {
+          containerRef.current.removeChild(
+            sceneRef.current.renderer.domElement
+          )
+        }
+      }
+    }
+  }, [resolvedTheme]) // ✅ FIXED dependency
+
+  return (
+    <div
+      ref={containerRef}
+      className={cn(
+        "pointer-events-none absolute inset-0 z-0 w-full h-full",
+        className
+      )}
+      {...props}
+    />
+  )
 }

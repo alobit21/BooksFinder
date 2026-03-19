@@ -4,7 +4,7 @@ import { Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { DottedSurfaceThree } from "./ui/dotted-surface-three"
+import { DottedSurfaceThree } from "@/components/ui/dotted-surface-three"
 
 interface HeroSectionProps {
   query: string
@@ -24,10 +24,14 @@ export function HeroSection({
   isExternalSearch = false,
 }: HeroSectionProps) {
   return (
-    <section className="relative py-20 px-4 text-center bg-gradient-to-br from-background via-background to-muted/20 overflow-hidden">
+    <section className="relative py-20 px-4 text-center bg-gradient-to-br from-background via-background to-muted/20 dark:bg-gradient-to-br dark:from-background dark:via-background dark:to-muted/20 overflow-hidden">
       
       {/* ✅ New Background */}
       <DottedSurfaceThree className="absolute inset-0 z-0" />
+
+<div className="absolute inset-0 z-[1] bg-white/60 dark:bg-black/30 backdrop-blur-[1px]" />
+
+<div className="container mx-auto max-w-4xl relative z-10"></div>
 
       <div className="container mx-auto max-w-4xl relative z-10">
         <div className="mb-8">
