@@ -19,14 +19,18 @@ export default function UploadBook() {
   const [coverUrl, setCoverUrl] = useState("")
   const [fileSize, setFileSize] = useState(0)
   const [isPublic, setIsPublic] = useState(false)
+  const [fileType, setFileType] = useState("")
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
 
-  const handleFileUpload = (url: string, type: string, size: number) => {
+  const handleFileUpload = (url: string, type: string, size: number, fileName?: string) => {
     if (type === "book") {
       setFileUrl(url)
       setFileSize(size)
+      // Detect file type from extension
+      const ext = fileName?.split('.').pop()?.toLowerCase() || 'pdf'
+      setFileType(ext)
     } else {
       setCoverUrl(url)
     }
@@ -57,7 +61,7 @@ export default function UploadBook() {
           fileUrl,
           coverUrl,
           isPublic,
-          fileType: "pdf", // Default to PDF for demo
+          fileType,
           fileSize,
         }),
       })

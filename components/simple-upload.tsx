@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Upload, FileText, Image, CheckCircle } from "lucide-react"
 
 interface SimpleUploadProps {
-  onUpload: (url: string, type: string, size: number) => void
+  onUpload: (url: string, type: string, size: number, fileName?: string) => void
   accept: string
   label: string
   maxSize: string
@@ -50,7 +50,7 @@ export function SimpleUpload({ onUpload, accept, label, maxSize, icon }: SimpleU
       }
 
       const result = await response.json()
-      onUpload(result.url, accept.includes('image') ? 'cover' : 'book', result.size)
+      onUpload(result.url, accept.includes('image') ? 'cover' : 'book', result.size, file.name)
       setUploadComplete(true)
     } catch (error) {
       console.error('Upload error:', error)
