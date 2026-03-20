@@ -5,15 +5,14 @@ const f = createUploadthing()
 
 const handleAuth = async () => {
   const session = await auth()
-  if (!session) throw new Error("Unauthorized")
+  if (!session || !session.user) throw new Error("Unauthorized")
   return { userId: session.user.id }
 }
 
 export const ourFileRouter = {
   bookUploader: f({
-    name: "bookUploader",
     pdf: { maxFileSize: "32MB", maxFileCount: 1 },
-    epub: { maxFileSize: "32MB", maxFileCount: 1 },
+    "application/epub+zip": { maxFileSize: "32MB", maxFileCount: 1 },
   })
     .middleware(handleAuth)
     .onUploadComplete(async ({ metadata, file }) => {
@@ -22,7 +21,6 @@ export const ourFileRouter = {
       return { uploadedBy: metadata.userId }
     }),
   coverUploader: f({
-    name: "coverUploader",
     image: { maxFileSize: "4MB", maxFileCount: 1 },
   })
     .middleware(handleAuth)

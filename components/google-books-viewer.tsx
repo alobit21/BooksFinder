@@ -48,7 +48,7 @@ export function GoogleBooksViewer({ isbn, title, author, className }: GoogleBook
       window.google.books.load()
       
       window.google.books.setOnLoadCallback(() => {
-        if (viewerRef.current) {
+        if (viewerRef.current && window.google?.books?.DefaultViewer) {
           viewerInstanceRef.current = new window.google.books.DefaultViewer(viewerRef.current)
           console.log('Google Books viewer initialized, loading book...')
           loadBook()

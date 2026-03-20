@@ -8,14 +8,19 @@ import * as THREE from "three"
 type DottedSurfaceProps = Omit<React.ComponentProps<"div">, "ref">
 
 export function DottedSurfaceThree({ className, ...props }: DottedSurfaceProps) {
-  const { resolvedTheme } = useTheme()
+  const { theme } = useTheme()
+  
+  // Determine the resolved theme
+  const resolvedTheme = theme === "system" 
+    ? (typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+    : theme
 
   const containerRef = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<{
     scene: THREE.Scene
     camera: THREE.PerspectiveCamera
     renderer: THREE.WebGLRenderer
-    animationId: number
+    animationId: number | null
   } | null>(null)
 
   useEffect(() => {
@@ -96,7 +101,7 @@ export function DottedSurfaceThree({ className, ...props }: DottedSurfaceProps) 
     scene.add(points)
 
     let count = 0
-    let animationId: number
+    let animationId: number | null = null
 
     const animate = () => {
       animationId = requestAnimationFrame(animate)
@@ -150,7 +155,9 @@ export function DottedSurfaceThree({ className, ...props }: DottedSurfaceProps) 
       window.removeEventListener("resize", handleResize)
 
       if (sceneRef.current) {
-        cancelAnimationFrame(sceneRef.current.animationId)
+        if (sceneRef.current.animationId !== null) {
+          cancelAnimationFrame(sceneRef.current.animationId)
+        }
 
         sceneRef.current.scene.traverse((obj) => {
           if (obj instanceof THREE.Points) {
@@ -178,7 +185,7 @@ export function DottedSurfaceThree({ className, ...props }: DottedSurfaceProps) 
         }
       }
     }
-  }, [resolvedTheme]) // ✅ FIXED dependency
+  }, [theme]) // Use theme as dependency
 
   return (
     <div
