@@ -115,22 +115,11 @@ export function BookDetailsClient({ book, iaId, isbn }: BookDetailsClientProps) 
             {iaId ? (
               <Card className="mt-4">
                 <CardContent className="p-6">
-                  <div className="space-y-3">
-                    <h3 className="font-semibold text-foreground">Available Actions</h3>
-                    
-                    <Button className="w-full" asChild>
-                      <Link href={`https://archive.org/details/${iaId}`} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="mr-2 h-4 w-4" />
-                        Read Book
-                      </Link>
-                    </Button>
-                    
-                    <Button variant="outline" className="w-full" asChild>
-                      <Link href={`https://archive.org/download/${iaId}`} target="_blank" rel="noopener noreferrer">
-                        <Download className="mr-2 h-4 w-4" />
-                        Download
-                      </Link>
-                    </Button>
+                  <div className="text-center space-y-2">
+                    <Book className="h-8 w-8 text-muted-foreground mx-auto" />
+                    <p className="text-sm text-muted-foreground">
+                      Use the embedded reader below to access this book
+                    </p>
                   </div>
                 </CardContent>
               </Card>
