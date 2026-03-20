@@ -290,27 +290,37 @@ function AuthFormContainer({ isSignIn, onToggle, onSignIn, onSignUp, isLoading, 
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
-        <PasswordInput 
-          name="password" 
-          label="Password" 
-          required 
-          autoComplete="new-password" 
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <div className="grid gap-2">
-          <Label htmlFor="confirmPassword">Confirm Password</Label>
-          <Input 
-            id="confirmPassword" 
-            type="password" 
-            placeholder="Confirm Password"
-            required
-            autoComplete="new-password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
+        
+        {/* Password fields in pairs */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="password">Password</Label>
+            <PasswordInput 
+              id="password" 
+              name="password" 
+              label=""
+              required 
+              autoComplete="new-password" 
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <PasswordInput 
+              id="confirmPassword" 
+              type="password" 
+              label=""
+              placeholder="Confirm Password"
+              required
+              autoComplete="new-password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+          </div>
         </div>
+        
         <Button type="submit" variant="outline" className="mt-2 text-foreground dark:text-foreground" disabled={isLoading}>
           {isLoading ? "Creating account..." : "Sign Up"}
         </Button>
