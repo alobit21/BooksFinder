@@ -6,8 +6,22 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'covers.openlibrary.org',
-        port: '',
         pathname: '/b/id/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'covers.openlibrary.org',
+        pathname: '/a/id/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ia601601.us.archive.org',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'archive.org',
+        pathname: '/**',
       },
       {
         protocol: 'https',
