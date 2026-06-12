@@ -153,7 +153,7 @@ export function SearchContent() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       <main>
         <HeroSection 
           query={query}
@@ -164,7 +164,7 @@ export function SearchContent() {
         />
         
         {/* Search Results Section */}
-        <section className="mb-12 px-4 sm:px-6 lg:px-8">
+        <section className="py-12">
           {loading && !books.length && <LoadingGrid />}
           
           {error && (
@@ -176,14 +176,14 @@ export function SearchContent() {
           )}
           
           {books.length > 0 && (
-            <div className="max-w-7xl mx-auto">
-              <div className="mb-8 p-6 bg-card rounded-lg border shadow-sm">
+            <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="mb-8 p-6 bg-white rounded-[14px] border border-[#ebebeb]">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
-                    <h2 className="text-2xl font-semibold text-foreground">
+                    <h2 className="text-[20px] font-semibold text-[#222222] tracking-[-0.44px]">
                       {query && `Results for "${query}"`}
                     </h2>
-                    <p className="text-muted-foreground mt-1">
+                    <p className="text-sm text-[#6a6a6a] mt-1">
                       {books.length} books found
                       {!showOnlyReadable && (
                         <span className="text-sm ml-2">
@@ -193,23 +193,25 @@ export function SearchContent() {
                     </p>
                     <div className="flex flex-wrap gap-2 mt-3">
                       <div className="flex items-center gap-1 text-xs">
-                        <Badge variant="default" className="bg-green-600 text-xs">Full Text</Badge>
-                        <span className="text-muted-foreground">Complete reading via Internet Archive</span>
+                        <span className="inline-flex h-2 w-2 rounded-full bg-green-600" />
+                        <span className="text-[#3f3f3f]">Full Text</span>
+                        <span className="text-[#929292]">via Internet Archive</span>
                       </div>
                       <div className="flex items-center gap-1 text-xs">
-                        <Badge variant="default" className="bg-blue-600 text-xs">Preview</Badge>
-                        <span className="text-muted-foreground">Preview via external links</span>
+                        <span className="inline-flex h-2 w-2 rounded-full bg-[#222222]" />
+                        <span className="text-[#3f3f3f]">Preview</span>
+                        <span className="text-[#929292]">via external links</span>
                       </div>
                     </div>
                   </div>
-                  
+                
                   <div className="flex items-center gap-2">
-                    <Filter className="h-4 w-4 text-foreground" />
+                    <Filter className="h-4 w-4 text-[#222222]" />
                     <Button
                       variant={showOnlyReadable ? "default" : "outline"}
                       size="sm"
                       onClick={() => setShowOnlyReadable(!showOnlyReadable)}
-                      className="flex items-center gap-2"
+                      className={`flex items-center gap-2 h-9 rounded-lg text-sm font-medium ${showOnlyReadable ? 'bg-[#222222] text-white hover:bg-[#222222]/90' : 'border border-[#c1c1c1] text-[#222222] hover:bg-[#f2f2f2]'}`}
                     >
                       <BookOpen className="h-4 w-4" />
                       {showOnlyReadable ? "All Books" : "Readable Only"}
@@ -217,7 +219,7 @@ export function SearchContent() {
                   </div>
                 </div>
               </div>
-              
+            
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
                 {books.map((book) => (
                   <BookCard key={book.id || book.key} book={book} />

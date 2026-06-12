@@ -96,15 +96,15 @@ export const SparksCarousel = React.forwardRef<
   }, [items]);
 
   return (
-    <section ref={ref} className="w-full py-8" aria-labelledby="sparks-title">
-      <div className="container mx-auto px-4 md:px-6">
+    <section ref={ref} className="w-full py-16" aria-labelledby="sparks-title">
+      <div className="max-w-[1280px] mx-auto px-4 md:px-6">
         {/* Header Section */}
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-8 flex items-center justify-between">
           <div>
-            <h2 id="sparks-title" className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+            <h2 id="sparks-title" className="text-[20px] font-semibold text-[#222222] tracking-[-0.44px]">
               {title}
             </h2>
-            <p className="mt-1 text-muted-foreground">{subtitle}</p>
+            <p className="mt-1 text-sm text-[#6a6a6a]">{subtitle}</p>
           </div>
         </div>
 
@@ -116,7 +116,8 @@ export const SparksCarousel = React.forwardRef<
         >
           <div
             ref={carouselRef}
-            className="flex w-full space-x-4 overflow-x-auto pb-4 scrollbar-hide"
+            className="flex w-full gap-5 overflow-x-auto pb-4"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {items.map((book, index) => {
               const workId = (book.key || book.id || '').replace('/works/', '')
@@ -128,7 +129,6 @@ export const SparksCarousel = React.forwardRef<
               const iaId = isReadable ? book.ia![0] : null
               const isbn = book.isbn && book.isbn.length > 0 ? book.isbn[0] : null
               
-              // Build URL with both IA ID and ISBN for maximum compatibility
               const params = new URLSearchParams()
               if (iaId) params.set('ia', iaId)
               if (isbn) params.set('isbn', isbn)
@@ -144,42 +144,40 @@ export const SparksCarousel = React.forwardRef<
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                 >
                   <Link href={bookUrl}>
-                    <div className="overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer">
-                      <div className="aspect-[3/4] relative overflow-hidden rounded-lg bg-muted">
+                    <div className="rounded-[14px] border border-[#ebebeb] bg-white p-4 transition-all duration-300 cursor-pointer hover:shadow-[0_0_0_1px_rgba(0,0,0,0.02),0_2px_6px_rgba(0,0,0,0.04),0_4px_8px_rgba(0,0,0,0.1)]">
+                      <div className="aspect-[3/4] relative overflow-hidden rounded-[14px] bg-[#f7f7f7]">
                         {coverUrl ? (
                           <Image
                             src={coverUrl}
                             alt={book.title}
                             fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-110"
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                           />
                         ) : (
                           <div className="flex items-center justify-center h-full">
-                            <span className="text-muted-foreground text-sm">No Cover</span>
+                            <span className="text-[#929292] text-sm">No Cover</span>
                           </div>
                         )}
                       </div>
                       
-                      <div className="p-4 space-y-3">
+                      <div className="p-3 space-y-2 pt-3">
                         <div className="flex items-start justify-between gap-2">
-                          <h3 className="font-semibold line-clamp-2 text-sm leading-tight flex-1 text-foreground">
+                          <h3 className="font-semibold line-clamp-2 text-sm leading-snug flex-1 text-[#222222]">
                             {book.title}
                           </h3>
                           {isReadable && (
-                            <Badge variant="default" className="text-xs shrink-0 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white">
-                              Full Text
-                            </Badge>
+                            <span className="inline-flex h-2 w-2 shrink-0 rounded-full bg-green-600 mt-1.5" />
                           )}
                         </div>
                         
                         {book.author_name && (
-                          <p className="text-xs text-muted-foreground line-clamp-1">
+                          <p className="text-xs text-[#929292] line-clamp-1">
                             {book.author_name.join(", ")}
                           </p>
                         )}
                         
-                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <div className="flex items-center justify-between text-xs text-[#929292]">
                           {book.first_publish_year && (
                             <span>{book.first_publish_year}</span>
                           )}
@@ -200,22 +198,22 @@ export const SparksCarousel = React.forwardRef<
             <button
               onClick={() => scroll("left")}
               className={cn(
-                "absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/60 backdrop-blur-sm border text-foreground shadow-md transition-opacity hover:bg-background/80 disabled:opacity-0"
+                "absolute left-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-white border border-[#ebebeb] shadow-[0_0_0_1px_rgba(0,0,0,0.02),0_2px_6px_rgba(0,0,0,0.04)] transition-opacity hover:bg-[#f7f7f7]"
               )}
               aria-label="Scroll left"
             >
-              <ChevronLeft className="h-6 w-6" />
+              <ChevronLeft className="h-5 w-5 text-[#222222]" />
             </button>
           )}
           {!isAtEnd && (
             <button
               onClick={() => scroll("right")}
               className={cn(
-                "absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/60 backdrop-blur-sm border text-foreground shadow-md transition-opacity hover:bg-background/80 disabled:opacity-0"
+                "absolute right-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-white border border-[#ebebeb] shadow-[0_0_0_1px_rgba(0,0,0,0.02),0_2px_6px_rgba(0,0,0,0.04)] transition-opacity hover:bg-[#f7f7f7]"
               )}
               aria-label="Scroll right"
             >
-              <ChevronRight className="h-6 w-6" />
+              <ChevronRight className="h-5 w-5 text-[#222222]" />
             </button>
           )}
         </div>
