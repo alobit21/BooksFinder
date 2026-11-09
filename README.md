@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📚 BooksFinder
+
+A full-stack book discovery and personal library app. Search millions of titles from Open Library, read online, and upload your own books to a personal library.
+
+**Live demo:** https://books-finder-brown.vercel.app
+
+## Features
+
+- **Search & browse** books, authors and subjects via the [Open Library](https://openlibrary.org/developers/api) API
+- **Reader:** in-app book viewer and Google Books embed
+- **Accounts:** sign up / sign in with NextAuth (credentials, bcrypt-hashed passwords)
+- **Personal library:** upload your own books (Cloudinary / UploadThing), edit them from a dashboard, and share a public library page per user
+- **Dark / light theme**, responsive UI
+
+## Tech Stack
+
+| Area | Tools |
+|---|---|
+| Framework | Next.js (App Router), React, TypeScript |
+| UI | Tailwind CSS, shadcn/ui, Radix UI, Framer Motion |
+| Auth | NextAuth + Prisma adapter |
+| Database | PostgreSQL ([Neon](https://neon.tech)) via Prisma |
+| Uploads | Cloudinary, UploadThing |
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/alobit21/BooksFinder.git
+cd BooksFinder
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create `.env` in the project root:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+DATABASE_URL=postgresql://...
+SHADOW_DATABASE_URL=postgresql://...   # only needed for prisma migrate dev
+NEXTAUTH_SECRET=<random string>
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+UploadThing also needs its own token if you use that upload route (see `app/api/uploadthing`).
 
-## Learn More
+```bash
+npx prisma migrate deploy   # create tables
+npm run db:seed             # optional sample data
+npm run dev                 # http://localhost:3000
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Project Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+app/            Routes: search, book/[id], author/[id], subject/[name], dashboard, library/[userId], api/*
+components/     UI + readers (book-reader, google-books-viewer, ai-reader)
+lib/            Auth, database, Cloudinary, Open Library helpers
+prisma/         Schema, migrations, seed
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Author
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Aloyce Mtavangu**: [Portfolio](https://mac.tarxemo.com) · [LinkedIn](https://www.linkedin.com/in/aloyce-mtavangu-5932652a0)
